@@ -5,6 +5,8 @@
 #include "GameFramework/Actor.h"
 #include "AuraEffectActor.generated.h"
 
+class UAuraAttributeSet;
+
 UCLASS()
 class AURA_API AAuraEffectActor : public AActor
 {
@@ -21,6 +23,9 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool IsMana = false;
 
 private:
 	UPROPERTY(VisibleAnywhere)
