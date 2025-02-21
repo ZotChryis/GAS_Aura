@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "AuraCharacterBase.generated.h"
@@ -21,6 +22,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void InitAbilityActorInfo();
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
