@@ -15,30 +15,30 @@ void AAuraEffectActor::BeginPlay()
 	Super::BeginPlay();
 }
 
-bool AAuraEffectActor::TryApplyEffectsToTargetByPolicy(AActor* TargetActor)
+bool AAuraEffectActor::TryApplyEffectsToTargetByPolicy(AActor* TargetActor, EEffectApplicationPolicy Policy)
 {
 	bool bApplied = false;
-	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
+	if (InstantEffectApplicationPolicy == Policy)
 	{
-		for (TSubclassOf<UGameplayEffect> InstantGameplayEffectClass : InstantGameplayEffectClasses)
+		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InstantGameplayEffectClasses)
 		{
-			bApplied = ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
+			bApplied = ApplyEffectToTarget(TargetActor, GameplayEffectClass);
 		}
 	}
 
-	if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
+	if (DurationEffectApplicationPolicy == Policy)
 	{
-		for (TSubclassOf<UGameplayEffect> InstantGameplayEffectClass : DurationGameplayEffectClasses)
+		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : DurationGameplayEffectClasses)
 		{
-			bApplied = ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
+			bApplied = ApplyEffectToTarget(TargetActor, GameplayEffectClass);
 		}
 	}
 
-	if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
+	if (InfiniteEffectApplicationPolicy == Policy)
 	{
-		for (TSubclassOf<UGameplayEffect> InstantGameplayEffectClass : InfiniteGameplayEffectClasses)
+		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InfiniteGameplayEffectClasses)
 		{
-			bApplied = ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
+			bApplied = ApplyEffectToTarget(TargetActor, GameplayEffectClass);
 		}
 	}
 
@@ -57,7 +57,7 @@ bool AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 
 	FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
 	EffectContext.AddSourceObject(this);
-	const FGameplayEffectSpecHandle EffectSpec = TargetASC->MakeOutgoingSpec(GameplayEffectClass, 1.f, EffectContext);
+	const FGameplayEffectSpecHandle EffectSpec = TargetASC->MakeOutgoingSpec(GameplayEffectClass, ActorLevel, EffectContext);
 	const FActiveGameplayEffectHandle ActiveEffectHandle = TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 	
 	const bool bInfinite = EffectSpec.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite;
@@ -75,7 +75,7 @@ bool AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 
 void AAuraEffectActor::OnOverlap(AActor* TargetActor)
 {
-	bool bApplied = TryApplyEffectsToTargetByPolicy(TargetActor);
+	bool bApplied = TryApplyEffectsToTargetByPolicy(TargetActor, EEffectApplicationPolicy::ApplyOnOverlap);
 	if (bApplied && bDestroyOnEffectApplication)
 	{
 		Destroy();
@@ -84,7 +84,7 @@ void AAuraEffectActor::OnOverlap(AActor* TargetActor)
 
 void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 {
-	bool bApplied = TryApplyEffectsToTargetByPolicy(TargetActor);
+	bool bApplied = TryApplyEffectsToTargetByPolicy(TargetActor, EEffectApplicationPolicy::ApplyOnEndOverlap);
 
 	bool bRemoved = false;
 	if (InfiniteEffectRemovePolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)

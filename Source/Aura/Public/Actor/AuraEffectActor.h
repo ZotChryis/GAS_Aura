@@ -35,7 +35,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	bool TryApplyEffectsToTargetByPolicy(AActor* TargetActor);
+	bool TryApplyEffectsToTargetByPolicy(AActor* TargetActor, EEffectApplicationPolicy Policy);
 	bool ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass);
 	
 	UFUNCTION(BlueprintCallable)
@@ -72,4 +72,7 @@ protected:
 	EEffectRemovalPolicy InfiniteEffectRemovePolicy = EEffectRemovalPolicy::RemoveOnEndOverlap;
 
 	TMap<UAbilitySystemComponent*, TArray<FActiveGameplayEffectHandle>> ActiveEffectHandles;
+
+	UPROPERTY(EditAnywhere, Category = "Applied Effects")
+	float ActorLevel = 1.f;
 };
