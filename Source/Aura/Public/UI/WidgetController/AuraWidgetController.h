@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "AuraWidgetController.generated.h"
 
+class APlayerState;
 class UAttributeSet;
 class UAbilitySystemComponent;
 
