@@ -2,6 +2,7 @@
 
 void UAuraUserWidget::SetWidgetController(UObject* InWidgetController)
 {
+	bHasScriptImplementedTick = true;
 	WidgetController = InWidgetController;
 	WidgetControllerSet();
 }
