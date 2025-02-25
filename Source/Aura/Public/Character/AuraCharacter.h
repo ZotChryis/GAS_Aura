@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffect.h"
 #include "Character/AuraCharacterBase.h"
 #include "AuraCharacter.generated.h"
 

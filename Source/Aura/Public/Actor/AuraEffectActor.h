@@ -36,6 +36,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	bool TryApplyEffectsToTargetByPolicy(AActor* TargetActor, EEffectApplicationPolicy Policy);
+
+	UFUNCTION(BlueprintCallable)
 	bool ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass);
 	
 	UFUNCTION(BlueprintCallable)

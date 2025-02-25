@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayEffect.h"
 #include "GameFramework/Character.h"
 #include "AuraCharacterBase.generated.h"
 
@@ -21,9 +22,9 @@ public:
 	UAttributeSet* GetAttributeSet() const;
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void InitAbilityActorInfo();
-
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
+	
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
@@ -32,4 +33,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
+	
+	virtual void BeginPlay() override;
+	virtual void InitAbilityActorInfo();
+	void InitializePrimaryAttributes() const;
 };
