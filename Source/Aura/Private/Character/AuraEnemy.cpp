@@ -15,6 +15,7 @@ AAuraEnemy::AAuraEnemy()
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 }
 
+/** Enemy Interface **/
 void AAuraEnemy::HighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(true);
@@ -29,6 +30,14 @@ void AAuraEnemy::UnHighlightActor()
 	GetMesh()->SetRenderCustomDepth(false);
 	Weapon->SetRenderCustomDepth(false);
 }
+/** End Enemy Interface **/
+
+/** Combat Interface **/
+int32 AAuraEnemy::GetPlayerLevel()
+{
+	return Level;
+}
+/** End Combat Interface **/
 
 void AAuraEnemy::BeginPlay()
 {
