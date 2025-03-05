@@ -142,27 +142,25 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	// If we have no target and are using LMB, handle movement logic
 	if (!bTargeting && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
 	{
-		if (FollowTime > ShortPressThreshold)
+		if (FollowTime <= ShortPressThreshold)
 		{
-			return;
-		}
-
-		if (APawn* ControlledPawn = GetPawn<APawn>())
-		{
-			if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
+			if (APawn* ControlledPawn = GetPawn<APawn>())
 			{
-				if (NavPath->PathPoints.Num() == 0)
+				if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
 				{
-					return;
-				}
+					if (NavPath->PathPoints.Num() == 0)
+					{
+						return;
+					}
 				
-				Spline->ClearSplinePoints();
-				for (FVector PathPoint : NavPath->PathPoints)
-				{
-					Spline->AddSplinePoint(PathPoint, ESplineCoordinateSpace::World);
+					Spline->ClearSplinePoints();
+					for (FVector PathPoint : NavPath->PathPoints)
+					{
+						Spline->AddSplinePoint(PathPoint, ESplineCoordinateSpace::World);
+					}
+					CachedDestination = NavPath->PathPoints.Last();
+					bAutoRunning = true;
 				}
-				CachedDestination = NavPath->PathPoints.Last();
-				bAutoRunning = true;
 			}
 		}
 
