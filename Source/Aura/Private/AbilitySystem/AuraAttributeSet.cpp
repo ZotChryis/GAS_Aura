@@ -1,5 +1,6 @@
-#include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAttributeSet.h"
+
+#include "AuraGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemGlobals.h"
 #include "Net/UnrealNetwork.h"
