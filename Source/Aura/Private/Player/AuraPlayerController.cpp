@@ -104,6 +104,9 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+
+		// If WASD is used, cancel any auto running
+		bAutoRunning = false;
 	}
 }
 

@@ -4,15 +4,18 @@
 
 void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	check(ProjectileClass);
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+}
 
-	const bool bServer = HasAuthority(&ActivationInfo);
-	if (!bServer)
+void UAuraProjectileSpell::SpawnProjectile()
+{
+	AActor* Actor = GetAvatarActorFromActorInfo();
+	if (!Actor->HasAuthority())
 	{
-		return;	
+		return;
 	}
+	
+	check(ProjectileClass);
 
 	AActor* Owner = GetOwningActorFromActorInfo();
 	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo());

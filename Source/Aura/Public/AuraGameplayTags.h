@@ -44,6 +44,9 @@ public:
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
 
+	// Gameplay Events
+	FGameplayTag Event_Montage_Firebolt;
+
 private:
 	static FAuraGameplayTags GameplayTags;
 };
