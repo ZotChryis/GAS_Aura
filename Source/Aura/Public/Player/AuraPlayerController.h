@@ -23,6 +23,7 @@ public:
 	AAuraPlayerController();
 
 	virtual void PlayerTick(float DeltaTime) override;
+	FHitResult GetCursorHit() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,6 +35,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> ShiftAction;
 
 	UPROPERTY()
 	TObjectPtr<UAuraAbilitySystemComponent> AuraASC;
@@ -58,6 +62,9 @@ private:
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
 	
+	void ShiftPressed() { bShiftKeyDown = true;}
+	void ShiftReleased() { bShiftKeyDown = false;}
+	
 	TScriptInterface<IEnemyInterface> LastActor;
 	TScriptInterface<IEnemyInterface> ThisActor;
 	FHitResult CursorHit;
@@ -65,4 +72,5 @@ private:
 	float FollowTime = 0.f;
 	bool bAutoRunning = false;
 	bool bTargeting = false;
+	bool bShiftKeyDown = false;
 };

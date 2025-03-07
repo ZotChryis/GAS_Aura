@@ -24,6 +24,11 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	AutoRun();
 }
 
+FHitResult AAuraPlayerController::GetCursorHit() const
+{
+	return CursorHit;
+}
+
 void AAuraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -50,6 +55,8 @@ void AAuraPlayerController::SetupInputComponent()
 
 	UAuraEnhancedInputComponent* AuraEnhancedInputComponent = CastChecked<UAuraEnhancedInputComponent>(InputComponent);
 	AuraEnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraEnhancedInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &AAuraPlayerController::ShiftPressed);
+	AuraEnhancedInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AAuraPlayerController::ShiftReleased);
 	AuraEnhancedInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
@@ -91,6 +98,8 @@ void AAuraPlayerController::CursorTrace()
 		LastActor->UnHighlightActor();
 		ThisActor->HighlightActor();
 	}
+
+	bTargeting = ThisActor != nullptr;
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -136,14 +145,13 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
 	{
 		bAutoRunning = false;
-		bTargeting = ThisActor != nullptr;
 	}
 }
 
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
 	// If we have no target and are using LMB, handle movement logic
-	if (!bTargeting && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
+	if (!bTargeting && !bShiftKeyDown && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
 	{
 		if (FollowTime <= ShortPressThreshold)
 		{
@@ -182,7 +190,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	// If we have no target and are using LMB, handle movement logic
-	if (!bTargeting && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
+	if (!bTargeting && !bShiftKeyDown && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
 	{
 		FollowTime += GetWorld()->GetDeltaSeconds();
 
