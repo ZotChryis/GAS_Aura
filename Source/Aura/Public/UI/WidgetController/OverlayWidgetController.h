@@ -29,6 +29,7 @@ struct FUIWidgetRow : public FTableRowBase
 
 struct FOnAttributeChangeData;
 
+// TODO: Move this type to a shared space
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageRowSignature, FUIWidgetRow, Row);
 
