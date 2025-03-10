@@ -5,10 +5,13 @@
 #include "Interaction/EnemyInterface.h"
 #include "Input/AuraEnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "MovieSceneTracksComponentTypes.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Components/SplineComponent.h"
+#include "UI/Widget/DamageTextComponent.h"
+#include "GameFramework/Character.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -27,6 +30,18 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 FHitResult AAuraPlayerController::GetCursorHit() const
 {
 	return CursorHit;
+}
+
+void AAuraPlayerController::ShowDamageText_Implementation(float Damage, ACharacter* TargetCharacter)
+{
+	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	{
+		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
+		DamageText->RegisterComponent();
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DamageText->SetDamageText(Damage);
+	}
 }
 
 void AAuraPlayerController::BeginPlay()

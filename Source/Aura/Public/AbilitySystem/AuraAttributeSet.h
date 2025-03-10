@@ -132,6 +132,11 @@ public:
 	FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Mana);
 
+	// Meta Attributes
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage);
+	
 	// Primary Attributes
 	UFUNCTION()
 	void OnRep_Strength(const FGameplayAttributeData& OldValue) const;
@@ -185,4 +190,5 @@ public:
 
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const;
+	void ShowFloatingDamageText(const FEffectProperties& Properties, float Damage) const;
 };

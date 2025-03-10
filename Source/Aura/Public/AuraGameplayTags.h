@@ -36,6 +36,9 @@ public:
 	FGameplayTag Attributes_Secondary_MaxHealth;
 	FGameplayTag Attributes_Secondary_MaxMana;
 
+	// Meta Attributes
+	FGameplayTag Attributes_Meta_Damage;
+	
 	// Input
 	FGameplayTag Input_LMB;
 	FGameplayTag Input_RMB;
@@ -46,6 +49,7 @@ public:
 
 	// Gameplay Events
 	FGameplayTag Event_Montage_Firebolt;
+	FGameplayTag Event_Montage_HitReact;
 
 private:
 	static FAuraGameplayTags GameplayTags;

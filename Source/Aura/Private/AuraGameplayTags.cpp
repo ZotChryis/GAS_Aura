@@ -28,6 +28,9 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Secondary_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxHealth"), FString("Maximum amount of health."));
 	GameplayTags.Attributes_Secondary_MaxMana = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Secondary.MaxMana"), FString("Maximum amount of mana."));
 
+	// Meta Attributes
+	GameplayTags.Attributes_Meta_Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Meta.Damage"), FString("Temporary attribute used to calculate damage."));
+
 	// Input
 	GameplayTags.Input_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.LMB"), FString("Left mouse button input."));
 	GameplayTags.Input_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.RMB"), FString("Right mouse button input."));
@@ -38,4 +41,5 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 
 	// Gameplay Events
 	GameplayTags.Event_Montage_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Firebolt"), FString("Event fired during the Firebolt montage."));
+	GameplayTags.Event_Montage_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.HitReact"), FString("Used to trigger hit react montage."));
 }
