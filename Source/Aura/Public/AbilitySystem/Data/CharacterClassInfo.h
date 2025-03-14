@@ -23,6 +23,9 @@ struct FCharacterClassDefaultInfo
 
 	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
 	TSubclassOf<UGameplayEffect> PrimaryAttributesGameplayEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
+	TArray<TSubclassOf<UGameplayAbility>> Abilities;
 };
 
 UCLASS()
@@ -31,9 +34,6 @@ class AURA_API UCharacterClassInfo : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
-	TMap<ECharacterClass, FCharacterClassDefaultInfo> CharacterClassInformation;
-	
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
 	TSubclassOf<UGameplayEffect> SecondaryAttributesGameplayEffect;
 
@@ -47,4 +47,8 @@ public:
 	TObjectPtr<UCurveTable> DamageCalculationCoefficients;
 
 	FCharacterClassDefaultInfo GetClassDefaultInfo(ECharacterClass CharacterClass);
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
+	TMap<ECharacterClass, FCharacterClassDefaultInfo> CharacterClassInformation;
 };

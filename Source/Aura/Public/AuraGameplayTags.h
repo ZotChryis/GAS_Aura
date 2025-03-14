@@ -50,6 +50,9 @@ public:
 	FGameplayTag Damage_Physical;
 
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
+
+	// Abilities
+	FGameplayTag Ability_Melee;
 	
 	// Input
 	FGameplayTag Input_LMB;
