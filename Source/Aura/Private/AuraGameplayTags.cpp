@@ -58,6 +58,8 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Input_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.4"), FString("4 button input."));
 
 	// Gameplay Events
-	GameplayTags.Event_Montage_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Firebolt"), FString("Event fired during the Firebolt montage."));
+	// TODO: Rename Shoot ?
+	GameplayTags.Event_Montage_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Firebolt"), FString("Event fired during the Firebolt montage on the point to shoot the projectile."));
 	GameplayTags.Event_Montage_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.HitReact"), FString("Used to trigger hit react montage."));
+	GameplayTags.Event_Montage_Melee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Melee"), FString("Event fired during the Melee attack animations on the point to do damage."));
 }

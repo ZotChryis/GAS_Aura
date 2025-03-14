@@ -65,6 +65,7 @@ public:
 	// Gameplay Events
 	FGameplayTag Event_Montage_Firebolt;
 	FGameplayTag Event_Montage_HitReact;
+	FGameplayTag Event_Montage_Melee;
 
 private:
 	static FAuraGameplayTags GameplayTags;
