@@ -19,7 +19,7 @@ class AURA_API AAuraEnemy : public AAuraCharacterBase, public IEnemyInterface
 	
 public:
 	AAuraEnemy();
-
+	
 	virtual void PossessedBy(AController* NewController) override;
 
 	/** Enemy Interface **/
@@ -28,6 +28,7 @@ public:
 	/** End Enemy Interface **/
 
 	/** Combat Interface **/
+	virtual bool IsRanged() override;
 	virtual int32 GetPlayerLevel() override;
 	/** End Combat Interface **/
 

@@ -55,6 +55,12 @@ bool AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 		return false;
 	}
 
+	const bool bIsEnemy = TargetActor->ActorHasTag("Enemy");
+	if (bIsEnemy && !bApplyEffectsToEnemies)
+	{
+		return false;
+	}
+
 	FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
 	EffectContext.AddSourceObject(this);
 	const FGameplayEffectSpecHandle EffectSpec = TargetASC->MakeOutgoingSpec(GameplayEffectClass, ActorLevel, EffectContext);

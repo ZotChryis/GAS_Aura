@@ -23,6 +23,12 @@ AAuraEnemy::AAuraEnemy()
 	
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 }
 
 void AAuraEnemy::PossessedBy(AController* NewController)
@@ -37,6 +43,9 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	AuraAIController = Cast<AAuraAIController>(NewController);
 	AuraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
 	AuraAIController->RunBehaviorTree(BehaviorTree);
+
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsRanged"), IsRanged());
 }
 
 /** Enemy Interface **/
@@ -54,12 +63,18 @@ void AAuraEnemy::UnHighlightActor()
 	GetMesh()->SetRenderCustomDepth(false);
 	Weapon->SetRenderCustomDepth(false);
 }
+
 /** End Enemy Interface **/
 
 /** Combat Interface **/
 int32 AAuraEnemy::GetPlayerLevel()
 {
 	return Level;
+}
+
+bool AAuraEnemy::IsRanged()
+{
+	return CharacterClass == ECharacterClass::Elementalist || CharacterClass == ECharacterClass::Ranger;
 }
 /** End Combat Interface **/
 
@@ -122,6 +137,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag Tag, int32 Count)
 	bHitReacting = Count > 0;
 
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0 : BaseWalkSpeed;
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsHitReacting"), bHitReacting);
 }
 
 void AAuraEnemy::Die()
