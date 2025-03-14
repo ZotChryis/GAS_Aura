@@ -8,6 +8,9 @@
 #include "AuraEnemy.generated.h"
 
 class UWidgetComponent;
+class UBlackboardComponent;
+class UBehaviorTree;
+class AAuraAIController;
 
 UCLASS()
 class AURA_API AAuraEnemy : public AAuraCharacterBase, public IEnemyInterface
@@ -16,6 +19,8 @@ class AURA_API AAuraEnemy : public AAuraCharacterBase, public IEnemyInterface
 	
 public:
 	AAuraEnemy();
+
+	virtual void PossessedBy(AController* NewController) override;
 
 	/** Enemy Interface **/
 	virtual void HighlightActor() override;
@@ -36,6 +41,15 @@ public:
 
 	virtual void Die() override;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Combat");
+	bool bHitReacting = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat");
+	float BaseWalkSpeed = 250.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat");
+	float Lifespan = 5.f;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
@@ -50,12 +64,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI");
 	TObjectPtr<UWidgetComponent> HealthBar;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat");
-	bool bHitReacting = false;
+	UPROPERTY(EditAnywhere, Category = "Aura AI");
+	TObjectPtr<UBehaviorTree> BehaviorTree;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat");
-	float BaseWalkSpeed = 250.f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat");
-	float Lifespan = 5.f;
+	UPROPERTY();
+	TObjectPtr<AAuraAIController> AuraAIController;
 };
