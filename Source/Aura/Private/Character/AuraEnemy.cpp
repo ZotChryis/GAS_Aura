@@ -76,6 +76,17 @@ bool AAuraEnemy::IsRanged()
 {
 	return CharacterClass == ECharacterClass::Elementalist || CharacterClass == ECharacterClass::Ranger;
 }
+
+void AAuraEnemy::SetCombatTarget_Implementation(AActor* InTarget)
+{
+	CombatTarget = InTarget;
+}
+
+AActor* AAuraEnemy::GetCombatTarget_Implementation() const
+{
+	return CombatTarget;
+}
+
 /** End Combat Interface **/
 
 void AAuraEnemy::BeginPlay()

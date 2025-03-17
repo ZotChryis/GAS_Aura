@@ -30,6 +30,8 @@ public:
 	/** Combat Interface **/
 	virtual bool IsRanged() override;
 	virtual int32 GetPlayerLevel() override;
+	virtual void SetCombatTarget_Implementation(AActor* InTarget) override;
+	virtual AActor* GetCombatTarget_Implementation() const override;
 	/** End Combat Interface **/
 
 	UPROPERTY(BlueprintAssignable)
@@ -51,6 +53,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat");
 	float Lifespan = 5.f;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Combat");
+	TObjectPtr<AActor> CombatTarget;
+ 
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
