@@ -1,6 +1,7 @@
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 
 #include "AuraAbilityTypes.h"
+#include "AuraGameplayTags.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Engine/OverlapResult.h"
 #include "Game/AuraGameModeBase.h"
@@ -199,4 +200,26 @@ void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 
 		OutActors.AddUnique(OverlapActor);
 	}
+}
+
+bool UAuraAbilitySystemLibrary::AreAllied(AActor* Actor, AActor* OtherActor)
+{
+	const bool bAIsPlayer = Actor->ActorHasTag(FName("Player"));
+	const bool bBIsPlayer = OtherActor->ActorHasTag(FName("Player"));
+
+	if (bAIsPlayer && bBIsPlayer)
+	{
+		return true;
+	}
+	if (!bAIsPlayer && !bBIsPlayer)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+bool UAuraAbilitySystemLibrary::AreEnemies(AActor* Actor, AActor* OtherActor)
+{
+	return !AreAllied(Actor, OtherActor);
 }

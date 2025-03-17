@@ -61,5 +61,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	// TODO: Rename Shoot ?
 	GameplayTags.Event_Montage_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Firebolt"), FString("Event fired during the Firebolt montage on the point to shoot the projectile."));
 	GameplayTags.Event_Montage_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.HitReact"), FString("Used to trigger hit react montage."));
-	GameplayTags.Event_Montage_Melee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Melee"), FString("Event fired during the Melee attack animations on the point to do damage."));
+	GameplayTags.Event_Montage_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Weapon"), FString("Event fired during the Weapon attack animations on the point to do damage."));
+	GameplayTags.Event_Montage_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.LeftHand"), FString("Event fired during the Left Hand attack animations on the point to do damage."));
+	GameplayTags.Event_Montage_RightHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.RightHand"), FString("Event fired during the Right Hand attack animations on the point to do damage."));
 }
