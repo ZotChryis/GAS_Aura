@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 AAuraProjectile::AAuraProjectile()
 {
@@ -51,9 +53,8 @@ void AAuraProjectile::BeginPlay()
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// TODO: Make this configurable
-	// Diff from Class: Do not collide with the caster of the projectile.
-	// @ Lesson 183 - I think this is needed right now because WeaponSocketLocation is not replicated good enough and the projectile hits Aura as she casts
-	if (OtherActor == GetOwner())
+	AActor* ProjectileOwner = DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser();
+	if (UAuraAbilitySystemLibrary::AreAllied(OtherActor, ProjectileOwner))
 	{
 		return;
 	}

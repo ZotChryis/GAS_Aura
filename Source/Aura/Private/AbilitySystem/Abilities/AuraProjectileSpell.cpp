@@ -29,8 +29,7 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 	SpawnTransform.SetLocation(SocketLocation);
 	SpawnTransform.SetRotation(Rotation.Quaternion());
 
-	// Diff from Class: Actor instead of Owner
-	Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(ProjectileClass, SpawnTransform, Actor,Cast<APawn>(Owner), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(ProjectileClass, SpawnTransform, Owner,Cast<APawn>(Owner), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 	const UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();

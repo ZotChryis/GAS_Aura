@@ -14,7 +14,7 @@ AAuraCharacterBase::AAuraCharacterBase()
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
-	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+	Weapon->SetupAttachment(GetMesh(), "WeaponHandSocket_L");
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);

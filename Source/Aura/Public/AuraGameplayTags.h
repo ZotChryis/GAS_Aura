@@ -52,7 +52,7 @@ public:
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
 
 	// Abilities
-	FGameplayTag Ability_Melee;
+	FGameplayTag Ability_Attack;
 	
 	// Input
 	FGameplayTag Input_LMB;
