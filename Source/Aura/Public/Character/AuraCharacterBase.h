@@ -32,6 +32,7 @@ public:
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
 	/** End Combat Interface **/
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -73,8 +74,7 @@ protected:
 	void AddCharacterAbilities() const;
 
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
-
-	/* Dissolve Effects */
+	
 	void Dissolve();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -89,8 +89,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	UNiagaraSystem* BloodEffect;
+
 private:
-	UPROPERTY(EditAnywhere, Category="Abilities")
+	UPROPERTY(EditAnywhere, Category="Combat")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 
 	UPROPERTY(EditAnywhere, Category="Combat")

@@ -52,6 +52,11 @@ void AAuraProjectile::BeginPlay()
 
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!DamageEffectSpecHandle.Data.IsValid())
+	{
+		return;
+	}
+	
 	// TODO: Make this configurable
 	AActor* ProjectileOwner = DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser();
 	if (UAuraAbilitySystemLibrary::AreAllied(OtherActor, ProjectileOwner))
