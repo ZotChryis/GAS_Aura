@@ -206,12 +206,15 @@ bool UAuraAbilitySystemLibrary::AreAllied(AActor* Actor, AActor* OtherActor)
 {
 	const bool bAIsPlayer = Actor->ActorHasTag(FName("Player"));
 	const bool bBIsPlayer = OtherActor->ActorHasTag(FName("Player"));
+	
+	const bool bAIsEnemy = Actor->ActorHasTag(FName("Enemy"));
+	const bool bBIsEnemy = OtherActor->ActorHasTag(FName("Enemy"));
 
 	if (bAIsPlayer && bBIsPlayer)
 	{
 		return true;
 	}
-	if (!bAIsPlayer && !bBIsPlayer)
+	if (bAIsEnemy && bBIsEnemy)
 	{
 		return true;
 	}

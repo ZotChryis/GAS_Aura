@@ -62,12 +62,23 @@ public:
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
 
-	// Gameplay Events
+	// Montage Events
 	FGameplayTag Event_Montage_Firebolt;
 	FGameplayTag Event_Montage_HitReact;
-	FGameplayTag Event_Montage_Weapon;
-	FGameplayTag Event_Montage_LeftHand;
-	FGameplayTag Event_Montage_RightHand;
+
+	FGameplayTag Event_Montage_Attack_1;
+	FGameplayTag Event_Montage_Attack_2;
+	FGameplayTag Event_Montage_Attack_3;
+	FGameplayTag Event_Montage_Attack_4;
+
+	// Combat Sockets
+	FGameplayTag CombatSocket_Weapon;
+	FGameplayTag CombatSocket_LeftHand;
+	FGameplayTag CombatSocket_RightHand;
+	FGameplayTag CombatSocket_Tail;
+
+	// Cues
+	FGameplayTag GameplayCue_MeleeImpact;
 
 private:
 	static FAuraGameplayTags GameplayTags;

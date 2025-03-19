@@ -58,10 +58,19 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Input_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.4"), FString("4 button input."));
 
 	// Gameplay Events
-	// TODO: Rename Shoot ?
 	GameplayTags.Event_Montage_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Firebolt"), FString("Event fired during the Firebolt montage on the point to shoot the projectile."));
 	GameplayTags.Event_Montage_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.HitReact"), FString("Used to trigger hit react montage."));
-	GameplayTags.Event_Montage_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Weapon"), FString("Event fired during the Weapon attack animations on the point to do damage."));
-	GameplayTags.Event_Montage_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.LeftHand"), FString("Event fired during the Left Hand attack animations on the point to do damage."));
-	GameplayTags.Event_Montage_RightHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.RightHand"), FString("Event fired during the Right Hand attack animations on the point to do damage."));
+
+	GameplayTags.Event_Montage_Attack_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.1"), FString("Generic attack montage event tag."));
+	GameplayTags.Event_Montage_Attack_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.2"), FString("Generic attack montage event tag."));
+	GameplayTags.Event_Montage_Attack_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.3"), FString("Generic attack montage event tag."));
+	GameplayTags.Event_Montage_Attack_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.4"), FString("Generic attack montage event tag."));
+
+	GameplayTags.CombatSocket_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.Weapon"), FString("Event fired during the Weapon attack animations on the point to do damage."));
+	GameplayTags.CombatSocket_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.LeftHand"), FString("Event fired during the Left Hand attack animations on the point to do damage."));
+	GameplayTags.CombatSocket_RightHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.RightHand"), FString("Event fired during the Right Hand attack animations on the point to do damage."));
+	GameplayTags.CombatSocket_Tail = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.Tail"), FString("Event fired during the Tail attack animations on the point to do damage."));
+
+	// Cues
+	GameplayTags.GameplayCue_MeleeImpact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.MeleeImpact"), FString("Cue used to replicate melee impacts."));
 }

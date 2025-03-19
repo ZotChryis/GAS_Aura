@@ -7,8 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Engine/Engine.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
-#include "Net/UnrealNetwork.h"
 
 AAuraProjectile::AAuraProjectile()
 {
@@ -32,13 +32,15 @@ AAuraProjectile::AAuraProjectile()
 
 void AAuraProjectile::Destroyed()
 {
-	Super::Destroyed();
-
-	if (!bHit && !HasAuthority())
+	if (!bHit)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+
+		bHit = true;
 	}
+
+	Super::Destroyed();
 }
 
 void AAuraProjectile::BeginPlay()
@@ -63,9 +65,14 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	{
 		return;
 	}
-	
-	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+
+	if (!bHit)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+		
+		bHit = true;
+	}
 
 	if (HasAuthority())
 	{
@@ -75,9 +82,5 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		}
 		
 		Destroy();
-	}
-	else
-	{
-		bHit = true;
 	}
 }
