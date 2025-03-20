@@ -10,7 +10,7 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
-void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag)
+void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, const float PitchOverride)
 {
 	AActor* Actor = GetAvatarActorFromActorInfo();
 	if (!Actor->HasAuthority())
@@ -23,7 +23,7 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 	AActor* Owner = GetOwningActorFromActorInfo();
 	FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(Actor, SocketTag);
 	FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
-	Rotation.Pitch = 0;
+	Rotation.Pitch = PitchOverride;
 	
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(SocketLocation);

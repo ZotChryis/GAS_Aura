@@ -84,7 +84,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().TagsToCaptureDefs[ResistanceTag], EvalParams, Resistance);
 		Resistance = FMath::Clamp<float>(Resistance, 0.f, 100.f);;
 		
-		Damage += ((100.f - Resistance) / 100.f) * Spec.GetSetByCallerMagnitude(DamageTypeTag);
+		Damage += ((100.f - Resistance) / 100.f) * Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
 	}
 	
 	// Capture block chance on target, and determine if there was a successful block
