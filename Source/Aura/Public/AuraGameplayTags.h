@@ -53,6 +53,7 @@ public:
 
 	// Abilities
 	FGameplayTag Ability_Attack;
+	FGameplayTag Ability_Summon;
 	
 	// Input
 	FGameplayTag Input_LMB;

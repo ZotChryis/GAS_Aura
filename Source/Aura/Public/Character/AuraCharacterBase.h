@@ -99,6 +99,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	USoundBase* DeathSound;
 
+	/** Minions **/
+	int32 MinionCount = 0;
+
+	virtual int32 GetMinionCount_Implementation() override;
+	virtual void UpdateMinionCount_Implementation(int32 Amount) override;
+
 private:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;

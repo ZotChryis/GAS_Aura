@@ -2,7 +2,6 @@
 
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 TArray<FVector> UAuraSummonGameplayAbility::GetSpawnLocations()
 {
@@ -39,4 +38,10 @@ TArray<FVector> UAuraSummonGameplayAbility::GetSpawnLocations()
 	}
 	
 	return SpawnLocations;
+}
+
+TSubclassOf<APawn> UAuraSummonGameplayAbility::GetRandomMinionClass()
+{
+	int32 Selection = FMath::RandRange(0, MinionClasses.Num() - 1);
+	return MinionClasses[Selection];
 }
