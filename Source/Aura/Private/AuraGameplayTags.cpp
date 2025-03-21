@@ -47,6 +47,8 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Physical, GameplayTags.Attributes_Resistance_Physical);
 
 	// Abilities
+	GameplayTags.Ability_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Firebolt"), FString("Firebolt ability."));
+	
 	GameplayTags.Ability_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Attack"), FString("Basic attack ability."));
 	GameplayTags.Ability_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Summon"), FString("Basic summon ability."));
 	

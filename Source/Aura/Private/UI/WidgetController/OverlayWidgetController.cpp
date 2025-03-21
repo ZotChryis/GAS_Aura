@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -63,4 +64,33 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			}
 		}
 	);
+
+	if (AuraAbilitySystemComponent->bStartupAbilitiesGiven)
+	{
+		OnStartupAbilitiesInitialized(AuraAbilitySystemComponent);
+	}
+	else
+	{
+		AuraAbilitySystemComponent->AbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnStartupAbilitiesInitialized);
+	}
+}
+
+void UOverlayWidgetController::OnStartupAbilitiesInitialized(UAuraAbilitySystemComponent* AuraASC)
+{
+	if (!AuraASC || !AuraASC->bStartupAbilitiesGiven)
+	{
+		return;
+	}
+
+	FForEachAbility BroadcastDelegate;
+	BroadcastDelegate.BindLambda(
+		[this](const FGameplayAbilitySpec& AbilitySpec){
+			FAuraAbilityInfo Info = AbilityInfo->GetAbilityInfoByTag(UAuraAbilitySystemComponent::GetAbilityTagFromSpec(AbilitySpec));
+			Info.InputTag = UAuraAbilitySystemComponent::GetAbilityInputTagFromSpec(AbilitySpec);
+
+			AbilityInfoDelegate.Broadcast(Info);
+		}
+	);
+
+	AuraASC->ForEachAbility(BroadcastDelegate);
 }

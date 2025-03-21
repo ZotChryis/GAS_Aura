@@ -52,6 +52,8 @@ public:
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
 
 	// Abilities
+	FGameplayTag Ability_Firebolt;
+	
 	FGameplayTag Ability_Attack;
 	FGameplayTag Ability_Summon;
 	
