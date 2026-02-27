@@ -32,6 +32,9 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Resistance_Lightning = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Lightning"), FString("Resistance to lightning damage."));
 	GameplayTags.Attributes_Resistance_Arcane = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Arcane"), FString("Resistance to arcane damage."));
 	GameplayTags.Attributes_Resistance_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Physical"), FString("Resistance to physical damage."));
+
+	// Meta
+	GameplayTags.Attributes_Meta_IncomingExperience =  UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Meta.IncomingExperience"), FString("Incoming experience meta attribute."));
 	
 	// Damage
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage"), FString("Temporary attribute used to calculate damage."));
@@ -47,10 +50,13 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_Physical, GameplayTags.Attributes_Resistance_Physical);
 
 	// Abilities
-	GameplayTags.Ability_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Firebolt"), FString("Firebolt ability."));
+	GameplayTags.Ability_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Fire.Firebolt"), FString("Firebolt ability."));
 	
 	GameplayTags.Ability_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Attack"), FString("Basic attack ability."));
 	GameplayTags.Ability_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Summon"), FString("Basic summon ability."));
+
+	// Cooldowns
+	GameplayTags.Cooldown_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Fire.Firebolt"), FString("Firebolt ability cooldown."));
 	
 	// Input
 	GameplayTags.Input_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.LMB"), FString("Left mouse button input."));

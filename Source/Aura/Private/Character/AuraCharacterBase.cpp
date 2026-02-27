@@ -54,6 +54,7 @@ void AAuraCharacterBase::AddCharacterAbilities() const
 	}
 
 	AuraAbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
+	AuraAbilitySystemComponent->AddCharacterPassiveAbilities(StartupPassiveAbilities);
 }
 
 void AAuraCharacterBase::InitializeDefaultAttributes() const
@@ -121,6 +122,11 @@ FTaggedMontage AAuraCharacterBase::GetTaggedMontageByTag_Implementation(const FG
 	}
 
 	return FTaggedMontage();
+}
+
+ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation() const
+{
+	return CharacterClass;
 }
 
 /** End Combat Interface **/

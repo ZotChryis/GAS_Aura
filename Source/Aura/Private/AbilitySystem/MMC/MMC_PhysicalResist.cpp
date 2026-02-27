@@ -35,8 +35,11 @@ float UMMC_PhysicalResist::CalculateBaseMagnitude_Implementation(const FGameplay
 	GetCapturedAttributeMagnitude(VigorDef, Spec, EvaluateParams, Vigor);
 	Vigor = FMath::Max<float>(Vigor, 0.0f);
 
-	ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	const int32 PlayerLevel = CombatInterface->GetPlayerLevel();
+	int32 PlayerLevel = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<UCombatInterface>())
+	{
+		PlayerLevel = ICombatInterface::Execute_GetPlayerLevel(Spec.GetContext().GetSourceObject());
+	}
 	
 	return Strength * 0.15f + Vigor * 0.15f + 1.5 * PlayerLevel;
 }

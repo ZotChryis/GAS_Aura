@@ -1,7 +1,9 @@
 #include "Character/AuraCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "NiagaraComponent.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/Data/LevelUpInfo.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
@@ -9,6 +11,19 @@
 
 AAuraCharacter::AAuraCharacter()
 {
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	SpringArmComponent->SetupAttachment(GetRootComponent());
+	SpringArmComponent->SetUsingAbsoluteRotation(true);
+	SpringArmComponent->bDoCollisionTest = false;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
+	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+	CameraComponent->bUsePawnControlRotation = false;
+	
+	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
+	LevelUpNiagaraComponent->SetupAttachment(GetRootComponent());
+	LevelUpNiagaraComponent->bAutoActivate = false;
+	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(400.f, 400.f, 400.f);
 	GetCharacterMovement()->bConstrainToPlane = true;
@@ -17,6 +32,8 @@ AAuraCharacter::AAuraCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+
+	CharacterClass = ECharacterClass::Elementalist;
 }
 
 void AAuraCharacter::PossessedBy(AController* NewController)
@@ -37,12 +54,66 @@ void AAuraCharacter::OnRep_PlayerState()
 }
 
 /** Combat Interface **/
-int32 AAuraCharacter::GetPlayerLevel()
+int32 AAuraCharacter::GetPlayerLevel_Implementation()
 {
-	AAuraPlayerState* AuraPlayerState = AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
 	return AuraPlayerState->GetPlayerLevel();
 }
+
 /** End Combat Interface **/
+
+/** Player Interface **/
+int32 AAuraCharacter::FindLevelForExperience_Implementation(int32 InExperience) const
+{
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	return AuraPlayerState->LevelUpData->FindLevelForExperience(InExperience);
+}
+
+int32 AAuraCharacter::GetExperience_Implementation() const
+{
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	return AuraPlayerState->GetExperience();
+}
+
+int32 AAuraCharacter::GetAttributePointsReward_Implementation(int32 InLevel) const
+{
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	return AuraPlayerState->LevelUpData->LevelUpInformation[InLevel].AttributePointReward;
+}
+
+int32 AAuraCharacter::GetSpellPointsReward_Implementation(int32 InLevel) const
+{
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	return AuraPlayerState->LevelUpData->LevelUpInformation[InLevel].SpellPointReward;
+}
+
+void AAuraCharacter::AddExperience_Implementation(int32 InExperience)
+{
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	AuraPlayerState->AddExperience(InExperience);
+}
+
+void AAuraCharacter::AddAttributePoints_Implementation(int32 InExperience)
+{
+	// TODO: Add AttributePoints to PlayerState
+}
+
+void AAuraCharacter::AddSpellPoints_Implementation(int32 InExperience)
+{
+	// TODO: Add Spell Points to PlayerState
+}
+
+void AAuraCharacter::AddPlayerLevel_Implementation(int32 InLevels)
+{
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	AuraPlayerState->AddPlayerLevel(InLevels);
+}
+
+void AAuraCharacter::LevelUp_Implementation()
+{
+	MulticastLevelUpVfx();
+}
+/** End Player Interface **/
 
 void AAuraCharacter::InitAbilityActorInfo()
 {
@@ -65,4 +136,16 @@ void AAuraCharacter::InitAbilityActorInfo()
 	}
 
 	InitializeDefaultAttributes();
+}
+
+void AAuraCharacter::MulticastLevelUpVfx_Implementation() const
+{
+	if (IsValid(LevelUpNiagaraComponent))
+	{
+		const FVector CameraLocation = CameraComponent->GetComponentLocation();
+		const FVector NiagaraLocation = LevelUpNiagaraComponent->GetComponentLocation();
+		const FRotator ToCameraRotation = (CameraLocation - NiagaraLocation).Rotation();
+		LevelUpNiagaraComponent->SetWorldRotation(ToCameraRotation);
+		LevelUpNiagaraComponent->Activate(true);
+	}
 }

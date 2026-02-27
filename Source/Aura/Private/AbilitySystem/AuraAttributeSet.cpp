@@ -1,10 +1,12 @@
 #include "AbilitySystem/AuraAttributeSet.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "Interaction/CombatInterface.h"
+#include "Interaction/PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/AuraPlayerController.h"
 
@@ -98,8 +100,6 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-
-		UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s, Health: %f"), *Properties.TargetAvatarActor->GetName(), GetHealth());
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
@@ -123,6 +123,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				if (CombatInterface)
 				{
 					CombatInterface->Die();
+					SendExperienceEvent(Properties);
 				}
 			}
 			else
@@ -139,6 +140,101 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				ShowFloatingDamageText(Properties, LocalIncomingDamage, bBlockedHit, bCriticalHit);	
 			}
 		}
+	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingExperienceAttribute())
+	{
+		const float LocalIncomingExperience = GetIncomingExperience();
+		SetIncomingExperience(0.f);
+		
+		// Source Character should be the owner, since GA_ListenForEvents applies GE_EventBasedEffect to itself in order to add Experience
+		if (Properties.SourceCharacter->Implements<UPlayerInterface>() && Properties.SourceCharacter->Implements<UCombatInterface>())
+		{
+			const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Properties.SourceCharacter);
+			const int32 CurrentExperience = IPlayerInterface::Execute_GetExperience(Properties.SourceCharacter);
+			const int32 NewLevel = IPlayerInterface::Execute_FindLevelForExperience(Properties.SourceCharacter, CurrentExperience + LocalIncomingExperience);
+			const int32 NumLevelUps = NewLevel - CurrentLevel;
+			if (NumLevelUps > 0)
+			{
+				int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Properties.SourceCharacter, CurrentLevel);
+				int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(Properties.SourceCharacter, CurrentLevel);
+				
+				IPlayerInterface::Execute_AddAttributePoints(Properties.SourceCharacter, AttributePointsReward);
+				IPlayerInterface::Execute_AddSpellPoints(Properties.SourceCharacter, SpellPointsReward);
+				
+				SetHealth(GetMaxHealth());
+				SetMana(GetMaxMana());
+				
+				IPlayerInterface::Execute_AddPlayerLevel(Properties.SourceCharacter, NumLevelUps);
+				IPlayerInterface::Execute_LevelUp(Properties.SourceCharacter);
+			}
+			
+			IPlayerInterface::Execute_AddExperience(Properties.SourceCharacter, LocalIncomingExperience);
+		}
+	}
+}
+
+void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const
+{
+	EffectProperties.EffectContextHandle = Data.EffectSpec.GetContext();
+
+	EffectProperties.SourceASC = EffectProperties.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
+	
+	if (IsValid(EffectProperties.SourceASC) && EffectProperties.SourceASC->AbilityActorInfo.IsValid() && EffectProperties.SourceASC->AbilityActorInfo->AvatarActor.IsValid())
+	{
+		EffectProperties.SourceAvatarActor = EffectProperties.SourceASC->AbilityActorInfo->AvatarActor.Get();
+		EffectProperties.SourceController = EffectProperties.SourceASC->AbilityActorInfo->PlayerController.Get();
+		if (!EffectProperties.SourceController && EffectProperties.SourceAvatarActor)
+		{
+			if (const APawn* SourcePawn = Cast<APawn>(EffectProperties.SourceAvatarActor))
+			{
+				EffectProperties.SourceController = Cast<APlayerController>(SourcePawn->GetController());
+			}
+		}
+
+		if (EffectProperties.SourceController)
+		{
+			EffectProperties.SourceCharacter = EffectProperties.SourceController->GetCharacter();
+		}
+	}
+	
+	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
+	{
+		EffectProperties.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+		EffectProperties.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
+		EffectProperties.TargetCharacter = Cast<ACharacter>(EffectProperties.TargetAvatarActor);
+		EffectProperties.TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(EffectProperties.TargetAvatarActor);
+	}
+}
+
+void UAuraAttributeSet::ShowFloatingDamageText(const FEffectProperties& Properties, float Damage, const bool bBlockedHit, const bool bCriticalHit) const
+{
+	if (AAuraPlayerController* AuraPC = Cast<AAuraPlayerController>(Properties.SourceController))
+	{
+		AuraPC->ShowDamageText(Damage, Properties.TargetCharacter, bBlockedHit, bCriticalHit);
+		return;
+	}
+
+	if (AAuraPlayerController* AuraPC = Cast<AAuraPlayerController>(Properties.TargetController))
+	{
+		AuraPC->ShowDamageText(Damage, Properties.TargetCharacter, bBlockedHit, bCriticalHit);	
+	}
+}
+
+void UAuraAttributeSet::SendExperienceEvent(const FEffectProperties& Properties) const
+{
+	if (Properties.TargetCharacter->Implements<UCombatInterface>())
+	{
+		const int32 TargetLevel = ICombatInterface::Execute_GetPlayerLevel(Properties.TargetCharacter);
+		const ECharacterClass TargetClass = ICombatInterface::Execute_GetCharacterClass(Properties.TargetCharacter);
+		const int32 ExperienceReward  = UAuraAbilitySystemLibrary::GetExperienceRewardForClassAndLevel(Properties.TargetCharacter, TargetClass, TargetLevel);
+		
+		const FAuraGameplayTags& Tags = FAuraGameplayTags::Get();
+		FGameplayEventData EventPayload = FGameplayEventData();
+		EventPayload.EventTag = Tags.Attributes_Meta_IncomingExperience;
+		EventPayload.EventMagnitude = ExperienceReward;
+	
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Properties.SourceCharacter, Tags.Attributes_Meta_IncomingExperience, EventPayload);
 	}
 }
 
@@ -241,52 +337,3 @@ void UAuraAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldValue) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Mana, OldValue);
 }
-
-
-void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const
-{
-	EffectProperties.EffectContextHandle = Data.EffectSpec.GetContext();
-
-	EffectProperties.SourceASC = EffectProperties.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
-	
-	if (IsValid(EffectProperties.SourceASC) && EffectProperties.SourceASC->AbilityActorInfo.IsValid() && EffectProperties.SourceASC->AbilityActorInfo->AvatarActor.IsValid())
-	{
-		EffectProperties.SourceAvatarActor = EffectProperties.SourceASC->AbilityActorInfo->AvatarActor.Get();
-		EffectProperties.SourceController = EffectProperties.SourceASC->AbilityActorInfo->PlayerController.Get();
-		if (!EffectProperties.SourceController && EffectProperties.SourceAvatarActor)
-		{
-			if (const APawn* SourcePawn = Cast<APawn>(EffectProperties.SourceAvatarActor))
-			{
-				EffectProperties.SourceController = Cast<APlayerController>(SourcePawn->GetController());
-			}
-		}
-
-		if (EffectProperties.SourceController)
-		{
-			EffectProperties.SourceCharacter = EffectProperties.SourceController->GetCharacter();
-		}
-	}
-	
-	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
-	{
-		EffectProperties.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
-		EffectProperties.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
-		EffectProperties.TargetCharacter = Cast<ACharacter>(EffectProperties.TargetAvatarActor);
-		EffectProperties.TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(EffectProperties.TargetAvatarActor);
-	}
-}
-
-void UAuraAttributeSet::ShowFloatingDamageText(const FEffectProperties& Properties, float Damage, const bool bBlockedHit, const bool bCriticalHit) const
-{
-	if (AAuraPlayerController* AuraPC = Cast<AAuraPlayerController>(Properties.SourceController))
-	{
-		AuraPC->ShowDamageText(Damage, Properties.TargetCharacter, bBlockedHit, bCriticalHit);
-		return;
-	}
-
-	if (AAuraPlayerController* AuraPC = Cast<AAuraPlayerController>(Properties.TargetController))
-	{
-		AuraPC->ShowDamageText(Damage, Properties.TargetCharacter, bBlockedHit, bCriticalHit);	
-	}
-}
-

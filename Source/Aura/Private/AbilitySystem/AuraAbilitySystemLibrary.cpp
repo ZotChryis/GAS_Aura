@@ -107,9 +107,9 @@ void UAuraAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContext
 	for (TSubclassOf<UGameplayAbility> Ability : ClassInfo.Abilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability);
-		if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(ASC->GetAvatarActor()))
+		if (ASC->GetAvatarActor()->Implements<UCombatInterface>())
 		{
-			AbilitySpec.Level = CombatInterface->GetPlayerLevel();
+			AbilitySpec.Level = ICombatInterface::Execute_GetPlayerLevel(ASC->GetAvatarActor());
 		}
 		ASC->GiveAbility(AbilitySpec);
 	}
@@ -225,4 +225,16 @@ bool UAuraAbilitySystemLibrary::AreAllied(AActor* Actor, AActor* OtherActor)
 bool UAuraAbilitySystemLibrary::AreEnemies(AActor* Actor, AActor* OtherActor)
 {
 	return !AreAllied(Actor, OtherActor);
+}
+
+int32 UAuraAbilitySystemLibrary::GetExperienceRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 Level)
+{
+	UCharacterClassInfo* ClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (!ClassInfo)
+	{
+		return 0;
+	}
+
+	FCharacterClassDefaultInfo DefaultClassInfo = ClassInfo->GetClassDefaultInfo(CharacterClass);
+	return static_cast<int32>(DefaultClassInfo.ExperienceReward.GetValueAtLevel(Level));
 }

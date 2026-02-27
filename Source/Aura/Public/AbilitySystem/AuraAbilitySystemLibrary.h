@@ -53,4 +53,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="AuraAbilitySystemLibrary|Gameplay Mechanics")
 	static bool AreEnemies(AActor* Actor, AActor* OtherActor);
+
+	UFUNCTION(BlueprintPure, Category="AuraAbilitySystemLibrary|Experience")
+	static int32 GetExperienceRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 Level);
 };

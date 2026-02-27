@@ -5,7 +5,8 @@
 
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const
 {
-	FAuraAttributeInfo Info = AttributeInfo->FindAttributeInfoForTag(AttributeTag);
+	const bool bLogNotFound = true;
+	FAuraAttributeInfo Info = AttributeInfo->FindAttributeInfoForTag(AttributeTag, bLogNotFound);
 	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet);
 	AttributeInfoDelegate.Broadcast(Info);
 }

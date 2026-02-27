@@ -35,8 +35,11 @@ float UMMC_FireResist::CalculateBaseMagnitude_Implementation(const FGameplayEffe
 	GetCapturedAttributeMagnitude(ResilienceDef, Spec, EvaluateParams, Resilience);
 	Resilience = FMath::Max<float>(Resilience, 0.0f);
 
-	ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	const int32 PlayerLevel = CombatInterface->GetPlayerLevel();
+	int32 PlayerLevel = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<UCombatInterface>())
+	{
+		PlayerLevel = ICombatInterface::Execute_GetPlayerLevel(Spec.GetContext().GetSourceObject());
+	}
 	
 	return Intelligence * 0.15f + Resilience * 0.15f + 1.5 * PlayerLevel;
 }

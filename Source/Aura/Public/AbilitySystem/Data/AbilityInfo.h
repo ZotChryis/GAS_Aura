@@ -15,7 +15,10 @@ struct FAuraAbilityInfo
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag AbilityTag = FGameplayTag();
-
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag CooldownTag = FGameplayTag();
+	
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag InputTag = FGameplayTag();
 
@@ -32,7 +35,8 @@ class AURA_API UAbilityInfo : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	
+
+	/** We assume these are authored to be sorted from 0->MAX level. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Information")
 	TArray<FAuraAbilityInfo> AbilityInformation;
 

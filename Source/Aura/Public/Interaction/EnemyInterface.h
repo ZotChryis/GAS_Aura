@@ -13,6 +13,7 @@ class UEnemyInterface : public UInterface
 class AURA_API IEnemyInterface
 {
 	GENERATED_BODY()
+	
 public:
 	virtual bool IsRanged() = 0;
 	virtual void HighlightActor() = 0;

@@ -153,6 +153,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingExperience;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingExperience);
 	
 	// Primary Attributes
 	UFUNCTION()
@@ -221,4 +225,5 @@ public:
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const;
 	void ShowFloatingDamageText(const FEffectProperties& Properties, float Damage, const bool bBlockedHit, const bool bCriticalHit) const;
+	void SendExperienceEvent(const FEffectProperties& Properties) const;
 };

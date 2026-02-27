@@ -29,7 +29,7 @@ public:
 
 	/** Combat Interface **/
 	virtual bool IsRanged() override;
-	virtual int32 GetPlayerLevel() override;
+	virtual int32 GetPlayerLevel_Implementation() override;
 	virtual void SetCombatTarget_Implementation(AActor* InTarget) override;
 	virtual AActor* GetCombatTarget_Implementation() const override;
 	/** End Combat Interface **/
@@ -60,9 +60,6 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
 	virtual void InitializeDefaultAttributes() const override;
-
-	UPROPERTY(EditAnywhere, Category = "Character Class Defaults")
-	ECharacterClass CharacterClass = ECharacterClass::Warrior;
 	
 	UPROPERTY(EditAnywhere, Category = "Character Class Defaults")
 	int32 Level = 1;

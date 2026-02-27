@@ -4,13 +4,18 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "AbilitySystem/Data/LevelUpInfo.h"
+#include "Player/AuraPlayerState.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
 	Super::BroadcastInitialValues();
 
-	UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
+	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+	OnPlayerLevelChangedDelegate.Broadcast(AuraPlayerState->GetPlayerLevel());
+	OnExperiencePercentChangedDelegate.Broadcast(AuraPlayerState->GetExperience());
 	
+	UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 	OnHealthChanged.Broadcast(AuraAttributeSet->GetHealth());
 	OnMaxHealthChanged.Broadcast(AuraAttributeSet->GetMaxHealth());
 	OnManaChanged.Broadcast(AuraAttributeSet->GetMana());
@@ -21,6 +26,13 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	Super::BindCallbacksToDependencies();
 
+	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+	AuraPlayerState->OnExperienceChanged.AddUObject(this, &UOverlayWidgetController::OnExperienceChanged);
+	AuraPlayerState->OnLevelChanged.AddLambda([&](const int32 NewLevel)
+	{
+		OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+	});
+	
 	UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetHealthAttribute()).AddLambda(
 		[&](const FOnAttributeChangeData& Data)
@@ -93,4 +105,25 @@ void UOverlayWidgetController::OnStartupAbilitiesInitialized(UAuraAbilitySystemC
 	);
 
 	AuraASC->ForEachAbility(BroadcastDelegate);
+}
+
+void UOverlayWidgetController::OnExperienceChanged(int32 NewExperience) const
+{
+	const AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+	const ULevelUpInfo* LevelUpInfo = AuraPlayerState->LevelUpData;
+	checkf(LevelUpInfo, TEXT("Player State did not have LevelUpInfo. Fill that out!"));
+
+	const int32 Level = LevelUpInfo->FindLevelForExperience(AuraPlayerState->GetExperience());
+	const int32 MaxLevel = LevelUpInfo->LevelUpInformation.Num();
+
+	if (Level <= MaxLevel && Level > 0)
+	{
+		const int32 LevelUpRequirement = LevelUpInfo->LevelUpInformation[Level].LevelUpRequirement;
+		const int32 PrevLevelUpRequirement = LevelUpInfo->LevelUpInformation[Level - 1].LevelUpRequirement;
+		const int32 DeltaLevelUpRequirement = LevelUpRequirement - PrevLevelUpRequirement;
+		const int32 ExperienceInCurrentLevel = NewExperience - PrevLevelUpRequirement;
+
+		const float ExperiencePercentage = static_cast<float>(ExperienceInCurrentLevel) / static_cast<float>(DeltaLevelUpRequirement);
+		OnExperiencePercentChangedDelegate.Broadcast(ExperiencePercentage);
+	}
 }

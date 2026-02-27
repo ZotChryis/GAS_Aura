@@ -3,10 +3,15 @@
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
 #include "Character/AuraCharacterBase.h"
+#include "Interaction/PlayerInterface.h"
 #include "AuraCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
+class UNiagaraComponent;
+
 UCLASS()
-class AURA_API AAuraCharacter : public AAuraCharacterBase
+class AURA_API AAuraCharacter : public AAuraCharacterBase, public IPlayerInterface
 {
 	GENERATED_BODY()
 	
@@ -17,9 +22,35 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	/** Combat Interface **/
-	virtual int32 GetPlayerLevel() override;
+	virtual int32 GetPlayerLevel_Implementation() override;
 	/** End Combat Interface **/
+
+	/** Player Interface **/
+	virtual int32 FindLevelForExperience_Implementation(int32 InExperience) const override;
+	virtual int32 GetAttributePointsReward_Implementation(int32 InLevel) const override;
+	virtual int32 GetSpellPointsReward_Implementation(int32 InLevel) const override;
+	virtual int32 GetExperience_Implementation() const override;
+	virtual void AddExperience_Implementation(int32 InExperience) override;
+	virtual void AddAttributePoints_Implementation(int32 InExperience) override;
+	virtual void AddSpellPoints_Implementation(int32 InExperience) override;
+	virtual void AddPlayerLevel_Implementation(int32 InLevels) override;
+	virtual void LevelUp_Implementation() override;
+	/** End Player Interface **/
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
 
 protected:
 	virtual void InitAbilityActorInfo() override;
+
+private:
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLevelUpVfx() const;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UCameraComponent> CameraComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USpringArmComponent> SpringArmComponent;
 };

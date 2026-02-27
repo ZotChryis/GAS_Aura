@@ -41,6 +41,9 @@ public:
 	FGameplayTag Attributes_Resistance_Lightning;
 	FGameplayTag Attributes_Resistance_Arcane;
 	FGameplayTag Attributes_Resistance_Physical;
+
+	// Meta Attributes
+	FGameplayTag Attributes_Meta_IncomingExperience;
 	
 	// Combat Damage
 	FGameplayTag Damage;
@@ -53,6 +56,7 @@ public:
 
 	// Abilities
 	FGameplayTag Ability_Firebolt;
+	FGameplayTag Cooldown_Firebolt;
 	
 	FGameplayTag Ability_Attack;
 	FGameplayTag Ability_Summon;
