@@ -61,6 +61,7 @@ public:
 	UAuraAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagToAttributeMap;
@@ -226,4 +227,7 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const;
 	void ShowFloatingDamageText(const FEffectProperties& Properties, float Damage, const bool bBlockedHit, const bool bCriticalHit) const;
 	void SendExperienceEvent(const FEffectProperties& Properties) const;
+	
+	bool bTopOffHealth = false;
+	bool bTopOffMana = false;
 };

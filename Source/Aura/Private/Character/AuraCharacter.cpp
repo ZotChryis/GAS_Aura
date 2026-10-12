@@ -93,14 +93,18 @@ void AAuraCharacter::AddExperience_Implementation(int32 InExperience)
 	AuraPlayerState->AddExperience(InExperience);
 }
 
-void AAuraCharacter::AddAttributePoints_Implementation(int32 InExperience)
+void AAuraCharacter::AddAttributePoints_Implementation(int32 InPoints)
 {
-	// TODO: Add AttributePoints to PlayerState
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	check(AuraPlayerState);
+	AuraPlayerState->AddAttributePoints(InPoints);
 }
 
-void AAuraCharacter::AddSpellPoints_Implementation(int32 InExperience)
+void AAuraCharacter::AddSpellPoints_Implementation(int32 InPoints)
 {
-	// TODO: Add Spell Points to PlayerState
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	check(AuraPlayerState);
+	AuraPlayerState->AddSpellPoints(InPoints);
 }
 
 void AAuraCharacter::AddPlayerLevel_Implementation(int32 InLevels)
@@ -113,6 +117,21 @@ void AAuraCharacter::LevelUp_Implementation()
 {
 	MulticastLevelUpVfx();
 }
+
+int32 AAuraCharacter::GetAttributePoints_Implementation() const
+{
+	AAuraPlayerState* AuraPlayerState = AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	check(AuraPlayerState);
+	return AuraPlayerState->GetAttributePoints();
+}
+
+int32 AAuraCharacter::GetSpellPoints_Implementation() const
+{
+	AAuraPlayerState* AuraPlayerState = AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	check(AuraPlayerState);
+	return AuraPlayerState->GetSpellPoints();
+}
+
 /** End Player Interface **/
 
 void AAuraCharacter::InitAbilityActorInfo()

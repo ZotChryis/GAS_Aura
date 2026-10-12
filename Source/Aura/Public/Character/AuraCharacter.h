@@ -31,10 +31,12 @@ public:
 	virtual int32 GetSpellPointsReward_Implementation(int32 InLevel) const override;
 	virtual int32 GetExperience_Implementation() const override;
 	virtual void AddExperience_Implementation(int32 InExperience) override;
-	virtual void AddAttributePoints_Implementation(int32 InExperience) override;
-	virtual void AddSpellPoints_Implementation(int32 InExperience) override;
+	virtual void AddAttributePoints_Implementation(int32 InPoints) override;
+	virtual void AddSpellPoints_Implementation(int32 InPoints) override;
 	virtual void AddPlayerLevel_Implementation(int32 InLevels) override;
 	virtual void LevelUp_Implementation() override;
+	virtual int32 GetAttributePoints_Implementation() const override;
+	virtual int32 GetSpellPoints_Implementation() const override;
 	/** End Player Interface **/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
