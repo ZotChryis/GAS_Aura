@@ -1,4 +1,6 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
+
+#include "AuraGameplayTags.h"
 #include "Engine/Engine.h"
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
@@ -71,6 +73,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			}
 		}
 	);
+	
+	GetAuraASC()->AbilityEquipped.AddUObject(this, &UOverlayWidgetController::OnAbilityEquipped);
 
 	if (GetAuraASC()->bStartupAbilitiesGiven)
 	{
@@ -100,4 +104,18 @@ void UOverlayWidgetController::OnExperienceChanged(int32 NewExperience)
 		const float ExperiencePercentage = static_cast<float>(ExperienceInCurrentLevel) / static_cast<float>(DeltaLevelUpRequirement);
 		OnExperiencePercentChangedDelegate.Broadcast(ExperiencePercentage);
 	}
+}
+
+void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag) const
+{
+	FAuraAbilityInfo PrevSlotInfo;
+	PrevSlotInfo.StatusTag = FAuraGameplayTags::Get().AbilityStatus_Unlocked;
+	PrevSlotInfo.AbilityTag = FAuraGameplayTags::Get().Ability_None;
+	PrevSlotInfo.InputTag = PrevInputTag;
+	AbilityInfoDelegate.Broadcast(PrevSlotInfo);
+	
+	FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoByTag(AbilityTag);
+	Info.StatusTag = StatusTag;
+	Info.InputTag = InputTag;
+	AbilityInfoDelegate.Broadcast(Info);
 }

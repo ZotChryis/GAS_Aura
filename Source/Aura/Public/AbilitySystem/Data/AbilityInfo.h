@@ -18,6 +18,9 @@ struct FAuraAbilityInfo
 	FGameplayTag AbilityTag = FGameplayTag();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag AbilityType = FGameplayTag();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag CooldownTag = FGameplayTag();
 	
 	UPROPERTY(BlueprintReadOnly)
@@ -51,5 +54,5 @@ public:
 	TArray<FAuraAbilityInfo> AbilityInformation;
 
 	UFUNCTION(BlueprintCallable)
-	FAuraAbilityInfo GetAbilityInfoByTag(const FGameplayTag& Tag, const bool bLogNotFound = false);
+	FAuraAbilityInfo FindAbilityInfoByTag(const FGameplayTag& Tag, const bool bLogNotFound = false);
 };

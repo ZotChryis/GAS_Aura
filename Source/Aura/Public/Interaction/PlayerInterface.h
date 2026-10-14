@@ -32,10 +32,10 @@ public:
 	void AddExperience(int32 InExperience);
 
 	UFUNCTION(BlueprintNativeEvent)
-	void AddAttributePoints(int32 InExperience);
+	void AddAttributePoints(int32 InAttributePoints);
 
 	UFUNCTION(BlueprintNativeEvent)
-	void AddSpellPoints(int32 InExperience);
+	void AddSpellPoints(int32 InSpellPoints);
 
 	UFUNCTION(BlueprintNativeEvent)
 	void AddPlayerLevel(int32 InLevels);
