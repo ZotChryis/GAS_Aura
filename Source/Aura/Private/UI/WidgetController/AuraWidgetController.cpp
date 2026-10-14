@@ -23,7 +23,7 @@ void UAuraWidgetController::BindCallbacksToDependencies()
 
 void UAuraWidgetController::BroadcastAbilityInfo()
 {
-	if (!GetAuraASC() || !GetAuraASC()->bStartupAbilitiesGiven)
+	if (!GetAuraASC()->bStartupAbilitiesGiven)
 	{
 		return;
 	}
@@ -33,7 +33,8 @@ void UAuraWidgetController::BroadcastAbilityInfo()
 		[this](const FGameplayAbilitySpec& AbilitySpec){
 			FAuraAbilityInfo Info = AbilityInfo->GetAbilityInfoByTag(UAuraAbilitySystemComponent::GetAbilityTagFromSpec(AbilitySpec));
 			Info.InputTag = UAuraAbilitySystemComponent::GetAbilityInputTagFromSpec(AbilitySpec);
-
+			Info.StatusTag = GetAuraASC()->GetAbilityStatusFromSpec(AbilitySpec);
+			
 			AbilityInfoDelegate.Broadcast(Info);
 		}
 	);

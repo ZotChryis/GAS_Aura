@@ -29,15 +29,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnPlayerStatChangedSignature AttributePointsChangedDelegate;
 	
-	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnPlayerStatChangedSignature SpellPointsChangedDelegate;
-	
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAttributeInfo> AttributeInfo;
 
 private:
 	void BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const;
-	void BroadcastAttributePoints(const int32& AttributePoints) const;
-	void BroadcastSpellPoints(const int32& SpellPoints) const;
+	void BroadcastAttributePoints() const;
 };

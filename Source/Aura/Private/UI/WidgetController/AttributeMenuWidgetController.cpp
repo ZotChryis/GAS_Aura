@@ -18,16 +18,10 @@ void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& 
 	AttributeInfoDelegate.Broadcast(Info);
 }
 
-void UAttributeMenuWidgetController::BroadcastAttributePoints(const int32& AttributePoints) const
+void UAttributeMenuWidgetController::BroadcastAttributePoints() const
 {
 	AAuraPlayerState* PS = Cast<AAuraPlayerState>(PlayerState);
 	AttributePointsChangedDelegate.Broadcast(PS->GetAttributePoints());
-}
-
-void UAttributeMenuWidgetController::BroadcastSpellPoints(const int32& SpellPoints) const
-{
-	AAuraPlayerState* PS = Cast<AAuraPlayerState>(PlayerState);
-	SpellPointsChangedDelegate.Broadcast(PS->GetSpellPoints());
 }
 
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
@@ -52,12 +46,6 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 			AttributePointsChangedDelegate.Broadcast(Points);
 		}
 	);
-	PS->OnSpellPointsChanged.AddLambda(
-		[this](int32 Points)
-		{
-			SpellPointsChangedDelegate.Broadcast(Points);
-		}
-	);
 }
 
 void UAttributeMenuWidgetController::BroadcastInitialValues()
@@ -66,13 +54,10 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 
 	check(AttributeInfo);
 	
-	UAuraAttributeSet* AS = CastChecked<UAuraAttributeSet>(AttributeSet);
-	for (auto& Pair : AS->TagToAttributeMap)
+	for (auto& Pair : GetAuraAttributeSet()->TagToAttributeMap)
 	{
 		BroadcastAttributeInfo(Pair.Key, Pair.Value());
 	} 
 	
-	AAuraPlayerState* PS = Cast<AAuraPlayerState>(PlayerState);
-	AttributePointsChangedDelegate.Broadcast(PS->GetAttributePoints());
-	SpellPointsChangedDelegate.Broadcast(PS->GetSpellPoints());
+	BroadcastAttributePoints();
 }

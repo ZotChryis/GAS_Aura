@@ -58,8 +58,24 @@ public:
 	FGameplayTag Ability_Firebolt;
 	FGameplayTag Cooldown_Firebolt;
 	
+	FGameplayTag Ability_Electrocute;
+	FGameplayTag Cooldown_Electrocute;
+	
+	FGameplayTag Ability_None;
 	FGameplayTag Ability_Attack;
 	FGameplayTag Ability_Summon;
+	FGameplayTag Ability_HitReact;
+	
+	// Ability Types
+	FGameplayTag AbilityType_Offensive;
+	FGameplayTag AbilityType_Passive;
+	FGameplayTag AbilityType_None;
+	
+	// Ability Status
+	FGameplayTag AbilityStatus_Locked;
+	FGameplayTag AbilityStatus_Eligible;
+	FGameplayTag AbilityStatus_Unlocked;
+	FGameplayTag AbilityStatus_Equipped;
 	
 	// Input
 	FGameplayTag Input_LMB;
@@ -68,6 +84,8 @@ public:
 	FGameplayTag Input_2;
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
+	FGameplayTag Input_Passive_1;
+	FGameplayTag Input_Passive_2;
 
 	// Montage Events
 	FGameplayTag Event_Montage_Firebolt;
