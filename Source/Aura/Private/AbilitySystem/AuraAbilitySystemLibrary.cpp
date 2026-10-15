@@ -170,6 +170,66 @@ bool UAuraAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle
 	return AuraContext->IsCriticalHit();
 }
 
+bool UAuraAbilitySystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextHandle ContextHandle)
+{
+	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return false;
+	}
+	
+	return AuraContext->IsSuccessfulDebuff();
+}
+
+float UAuraAbilitySystemLibrary::GetDebuffDamage(const FGameplayEffectContextHandle ContextHandle)
+{
+	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return false;
+	}
+	
+	return AuraContext->GetDebuffDamage();
+}
+
+float UAuraAbilitySystemLibrary::GetDebuffDuration(const FGameplayEffectContextHandle ContextHandle)
+{
+	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return false;
+	}
+	
+	return AuraContext->GetDebuffDuration();
+}
+
+float UAuraAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle ContextHandle)
+{
+	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return false;
+	}
+	
+	return AuraContext->GetDebuffFrequency();
+}
+
+FGameplayTag UAuraAbilitySystemLibrary::GetDamageType(const FGameplayEffectContextHandle ContextHandle)
+{
+	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return FGameplayTag();;
+	}
+	
+	if (!AuraContext->GetDamageType().IsValid())
+	{
+		return FGameplayTag();;
+	}
+	
+	return *AuraContext->GetDamageType();
+}
+
 void UAuraAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& ContextHandle, bool Value)
 {
 	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
@@ -190,6 +250,62 @@ void UAuraAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& C
 	}
 
 	AuraContext->SetIsCriticalHit(Value);
+}
+
+void UAuraAbilitySystemLibrary::SetIsSuccessfulDebuff(FGameplayEffectContextHandle& ContextHandle, bool Value)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+
+	AuraContext->SetIsSuccessfulDebuff(Value);
+}
+
+void UAuraAbilitySystemLibrary::SetDebuffDamage(FGameplayEffectContextHandle& ContextHandle, float Value)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+
+	AuraContext->SetDebuffDamage(Value);
+}
+
+void UAuraAbilitySystemLibrary::SetDebuffDuration(FGameplayEffectContextHandle& ContextHandle, float Value)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+
+	AuraContext->SetDebuffDuration(Value);
+}
+
+void UAuraAbilitySystemLibrary::SetDebuffFrequency(FGameplayEffectContextHandle& ContextHandle, float Value)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+
+	AuraContext->SetDebuffFrequency(Value);
+}
+
+void UAuraAbilitySystemLibrary::SetDamageType(FGameplayEffectContextHandle& ContextHandle, const FGameplayTag& InDamageType)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+
+	const TSharedPtr<FGameplayTag>& DamageType = MakeShared<FGameplayTag>(InDamageType);
+	AuraContext->SetDamageType(DamageType);
 }
 
 void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutActors, const TArray<AActor*>& IgnoreActors, const FVector& Origin, float Radius)
@@ -259,4 +375,27 @@ int32 UAuraAbilitySystemLibrary::GetExperienceRewardForClassAndLevel(const UObje
 
 	FCharacterClassDefaultInfo DefaultClassInfo = ClassInfo->GetClassDefaultInfo(CharacterClass);
 	return static_cast<int32>(DefaultClassInfo.ExperienceReward.GetValueAtLevel(Level));
+}
+
+FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(const FDamageEffectParams& Params)
+{
+	if (!Params.TargetASC || !Params.SourceASC)
+	{
+		return FGameplayEffectContextHandle();
+	}
+	
+	FGameplayEffectContextHandle ContextHandle = Params.SourceASC->MakeEffectContext();
+	ContextHandle.AddSourceObject(Params.SourceASC->GetAvatarActor());
+	ContextHandle.AddOrigin(Params.SourceASC->GetAvatarActor()->GetActorLocation());
+	
+	FGameplayEffectSpecHandle SpecHandle = Params.SourceASC->MakeOutgoingSpec(Params.DamageEffectClass, Params.AbilityLevel, ContextHandle);
+	
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Params.DamageType, Params.BaseDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, FAuraGameplayTags::Get().Debuff_Chance, Params.DebuffChance);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, FAuraGameplayTags::Get().Debuff_Damage, Params.DebuffDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, FAuraGameplayTags::Get().Debuff_Duration, Params.DebuffDuration);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, FAuraGameplayTags::Get().Debuff_Frequency, Params.DebuffFrequency);
+	
+	Params.SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data, Params.TargetASC);
+	return ContextHandle;
 }

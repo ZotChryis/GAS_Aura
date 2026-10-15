@@ -9,11 +9,8 @@
 void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
 	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
-	for (TTuple<FGameplayTag, FScalableFloat> DamagePair : DamageTypes)
-	{
-		const float ScaledDamage = DamagePair.Value.GetValueAtLevel(GetAbilityLevel());
-		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamagePair.Key, ScaledDamage);
-	}
+	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType, ScaledDamage);
 
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetASC)
@@ -25,8 +22,19 @@ void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	OwnerASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 }
 
-float UAuraDamageGameplayAbility::GetDamageByType(float InLevel, const FGameplayTag& DamageType) const
+FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor) const
 {
-	checkf(DamageTypes.Contains(DamageType), TEXT("GameplayAbility [%s] does not contain DamageType [%s]"), *GetNameSafe(this), *DamageType.ToString());
-	return DamageTypes[DamageType].GetValueAtLevel(InLevel);
+	FDamageEffectParams DamageEffectParams;
+	DamageEffectParams.WorldContextObject = GetAvatarActorFromActorInfo();
+	DamageEffectParams.DamageEffectClass = DamageEffectClass.Get();
+	DamageEffectParams.SourceASC = GetAbilitySystemComponentFromActorInfo();
+	DamageEffectParams.TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	DamageEffectParams.BaseDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+	DamageEffectParams.AbilityLevel = GetAbilityLevel();
+	DamageEffectParams.DamageType = DamageType;
+	DamageEffectParams.DebuffChance = DebuffChance;
+	DamageEffectParams.DebuffDamage = DebuffDamage;
+	DamageEffectParams.DebuffDuration = DebuffDuration;
+	DamageEffectParams.DebuffFrequency = DebuffFrequency;
+	return DamageEffectParams;
 }

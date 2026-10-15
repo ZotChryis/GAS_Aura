@@ -4,6 +4,7 @@
 #include "AuraGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemGlobals.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "Interaction/CombatInterface.h"
 #include "Interaction/PlayerInterface.h"
@@ -124,69 +125,83 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		const float LocalIncomingDamage = GetIncomingDamage();
-		SetIncomingDamage(0.f);
-
-		if (LocalIncomingDamage > 0.f)
-		{
-			const float NewHealth = GetHealth() - LocalIncomingDamage;
-			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-
-			const bool bFatal = NewHealth <= 0.f;
-			if (bFatal)
-			{
-				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Properties.TargetAvatarActor);
-				if (CombatInterface)
-				{
-					CombatInterface->Die();
-					SendExperienceEvent(Properties);
-				}
-			}
-			else
-			{
-				FGameplayTagContainer TagContainer;
-				TagContainer.AddTag(FAuraGameplayTags::Get().Event_Montage_HitReact);
-				Properties.TargetASC->TryActivateAbilitiesByTag(TagContainer);
-			}
-
-			const bool bBlockedHit = UAuraAbilitySystemLibrary::IsBlockedHit(Properties.EffectContextHandle);
-			const bool bCriticalHit = UAuraAbilitySystemLibrary::IsCriticalHit(Properties.EffectContextHandle);
-			if (Properties.SourceCharacter != Properties.TargetCharacter)
-			{
-				ShowFloatingDamageText(Properties, LocalIncomingDamage, bBlockedHit, bCriticalHit);	
-			}
-		}
+		HandleIncomingDamage(Properties);
 	}
 
 	if (Data.EvaluatedData.Attribute == GetIncomingExperienceAttribute())
 	{
-		const float LocalIncomingExperience = GetIncomingExperience();
-		SetIncomingExperience(0.f);
-		
-		// Source Character should be the owner, since GA_ListenForEvents applies GE_EventBasedEffect to itself in order to add Experience
-		if (Properties.SourceCharacter->Implements<UPlayerInterface>() && Properties.SourceCharacter->Implements<UCombatInterface>())
+		HandleIncomingExperience(Properties);
+	}
+}
+
+void UAuraAttributeSet::HandleIncomingDamage(FEffectProperties Properties)
+{
+	const float LocalIncomingDamage = GetIncomingDamage();
+	SetIncomingDamage(0.f);
+
+	if (LocalIncomingDamage > 0.f)
+	{
+		const float NewHealth = GetHealth() - LocalIncomingDamage;
+		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+		const bool bFatal = NewHealth <= 0.f;
+		if (bFatal)
 		{
-			const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Properties.SourceCharacter);
-			const int32 CurrentExperience = IPlayerInterface::Execute_GetExperience(Properties.SourceCharacter);
-			const int32 NewLevel = IPlayerInterface::Execute_FindLevelForExperience(Properties.SourceCharacter, CurrentExperience + LocalIncomingExperience);
-			const int32 NumLevelUps = NewLevel - CurrentLevel;
-			if (NumLevelUps > 0)
+			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Properties.TargetAvatarActor))
 			{
-				int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Properties.SourceCharacter, CurrentLevel);
-				int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(Properties.SourceCharacter, CurrentLevel);
-				
-				IPlayerInterface::Execute_AddAttributePoints(Properties.SourceCharacter, AttributePointsReward);
-				IPlayerInterface::Execute_AddSpellPoints(Properties.SourceCharacter, SpellPointsReward);
-				
-				bTopOffHealth = true;
-				bTopOffMana = true;
-				
-				IPlayerInterface::Execute_AddPlayerLevel(Properties.SourceCharacter, NumLevelUps);
-				IPlayerInterface::Execute_LevelUp(Properties.SourceCharacter);
+				CombatInterface->Die();
+				SendExperienceEvent(Properties);
 			}
-			
-			IPlayerInterface::Execute_AddExperience(Properties.SourceCharacter, LocalIncomingExperience);
 		}
+		else
+		{
+			FGameplayTagContainer TagContainer;
+			TagContainer.AddTag(FAuraGameplayTags::Get().Event_Montage_HitReact);
+			Properties.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+		}
+
+		const bool bBlockedHit = UAuraAbilitySystemLibrary::IsBlockedHit(Properties.EffectContextHandle);
+		const bool bCriticalHit = UAuraAbilitySystemLibrary::IsCriticalHit(Properties.EffectContextHandle);
+		if (Properties.SourceCharacter != Properties.TargetCharacter)
+		{
+			ShowFloatingDamageText(Properties, LocalIncomingDamage, bBlockedHit, bCriticalHit);	
+		}
+			
+		if (UAuraAbilitySystemLibrary::IsSuccessfulDebuff(Properties.EffectContextHandle))
+		{
+			Debuff(Properties);
+		}
+	}
+}
+
+void UAuraAttributeSet::HandleIncomingExperience(FEffectProperties Properties)
+{
+	const float LocalIncomingExperience = GetIncomingExperience();
+	SetIncomingExperience(0.f);
+		
+	// Source Character should be the owner, since GA_ListenForEvents applies GE_EventBasedEffect to itself in order to add Experience
+	if (Properties.SourceCharacter->Implements<UPlayerInterface>() && Properties.SourceCharacter->Implements<UCombatInterface>())
+	{
+		const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Properties.SourceCharacter);
+		const int32 CurrentExperience = IPlayerInterface::Execute_GetExperience(Properties.SourceCharacter);
+		const int32 NewLevel = IPlayerInterface::Execute_FindLevelForExperience(Properties.SourceCharacter, CurrentExperience + LocalIncomingExperience);
+		const int32 NumLevelUps = NewLevel - CurrentLevel;
+		if (NumLevelUps > 0)
+		{
+			int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Properties.SourceCharacter, CurrentLevel);
+			int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(Properties.SourceCharacter, CurrentLevel);
+				
+			IPlayerInterface::Execute_AddAttributePoints(Properties.SourceCharacter, AttributePointsReward);
+			IPlayerInterface::Execute_AddSpellPoints(Properties.SourceCharacter, SpellPointsReward);
+				
+			bTopOffHealth = true;
+			bTopOffMana = true;
+				
+			IPlayerInterface::Execute_AddPlayerLevel(Properties.SourceCharacter, NumLevelUps);
+			IPlayerInterface::Execute_LevelUp(Properties.SourceCharacter);
+		}
+			
+		IPlayerInterface::Execute_AddExperience(Properties.SourceCharacter, LocalIncomingExperience);
 	}
 }
 
@@ -252,6 +267,10 @@ void UAuraAttributeSet::SendExperienceEvent(const FEffectProperties& Properties)
 	
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Properties.SourceCharacter, Tags.Attributes_Meta_IncomingExperience, EventPayload);
 	}
+}
+
+void UAuraAttributeSet::Debuff(const FEffectProperties& Properties)
+{
 }
 
 void UAuraAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldValue) const

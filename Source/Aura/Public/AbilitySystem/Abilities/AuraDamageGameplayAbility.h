@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AuraAbilityTypes.h"
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
 #include "AuraDamageGameplayAbility.generated.h"
 
@@ -12,13 +13,28 @@ class AURA_API UAuraDamageGameplayAbility : public UAuraGameplayAbility
 public:
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 	void CauseDamage(AActor* TargetActor);
-	
-	float GetDamageByType(float InLevel, const FGameplayTag& DamageType) const;
+
+	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
-	TMap<FGameplayTag, FScalableFloat> DamageTypes;
+	FGameplayTag DamageType;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	FScalableFloat Damage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	float DebuffChance = 20.0f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	float DebuffDamage = 5.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	float DebuffFrequency = 1.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	float DebuffDuration = 5.f;
 };

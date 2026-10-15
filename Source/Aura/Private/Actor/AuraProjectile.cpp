@@ -30,14 +30,19 @@ AAuraProjectile::AAuraProjectile()
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 }
 
+void AAuraProjectile::OnHit()
+{
+	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+		
+	bHit = true;
+}
+
 void AAuraProjectile::Destroyed()
 {
 	if (!bHit)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-
-		bHit = true;
+		OnHit();
 	}
 
 	Super::Destroyed();
@@ -54,13 +59,7 @@ void AAuraProjectile::BeginPlay()
 
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!DamageEffectSpecHandle.Data.IsValid())
-	{
-		return;
-	}
-	
-	// TODO: Make this configurable
-	AActor* ProjectileOwner = DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser();
+	AActor* ProjectileOwner = DamageEffectParams.SourceASC.Get()->GetAvatarActor();
 	if (UAuraAbilitySystemLibrary::AreAllied(OtherActor, ProjectileOwner))
 	{
 		return;
@@ -68,17 +67,15 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 	if (!bHit)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-		
-		bHit = true;
+		OnHit();
 	}
 
 	if (HasAuthority())
 	{
 		if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
-			ASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
+			DamageEffectParams.TargetASC = ASC;
+			UAuraAbilitySystemLibrary::ApplyDamageEffect(DamageEffectParams);
 		}
 		
 		Destroy();
