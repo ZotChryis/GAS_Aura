@@ -12,6 +12,10 @@ AAuraCharacterBase::AAuraCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	BurnDebuffVfx = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffVFX");
+	BurnDebuffVfx->SetupAttachment(GetRootComponent());
+	BurnDebuffVfx->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
+	
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
@@ -80,10 +84,15 @@ UAttributeSet* AAuraCharacterBase::GetAttributeSet() const
 }
 
 /** Combat Interface **/
-void AAuraCharacterBase::Die()
+void AAuraCharacterBase::Die(const FVector& DeathImpulse)
 {
 	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
-	MulticastHandleDeath();
+	MulticastHandleDeath(DeathImpulse);
+}
+
+void AAuraCharacterBase::Knockback(const FVector& KnockbackImpulse)
+{
+	LaunchCharacter(KnockbackImpulse, false, false);
 }
 
 UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
@@ -129,27 +138,40 @@ ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation() const
 	return CharacterClass;
 }
 
+FOnASCRegistered AAuraCharacterBase::GetOnASCRegisteredDelegate()
+{
+	return OnASCRegistered;
+}
+
+FOnDeath& AAuraCharacterBase::GetOnDeathDelegate()
+{
+	return OnDeath;
+}
+
 /** End Combat Interface **/
 
-void AAuraCharacterBase::MulticastHandleDeath_Implementation()
+void AAuraCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
 	
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetEnableGravity(true);
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	Weapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true);
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+	GetMesh()->AddImpulse(DeathImpulse, NAME_None, true);
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	Dissolve();
 	
 	bDead = true;
+	OnDeath.Broadcast(this);
 }
 
 FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)

@@ -59,29 +59,49 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 		{
 			RepBits |= (1 << 8);
 		}
-		if (bSuccessfulDebuff)
+		if (bCausesHitReact)
 		{
 			RepBits |= (1 << 9);
 		}
-		if (DebuffDamage > 0)
+		if (bDebuffCausesHitReact)
 		{
 			RepBits |= (1 << 10);
 		}
-		if (DebuffDuration > 0)
+		if (bSuccessfulDebuff)
 		{
 			RepBits |= (1 << 11);
 		}
-		if (DebuffFrequency > 0)
+		if (bSuccessfulKnockback)
 		{
 			RepBits |= (1 << 12);
 		}
-		if (DamageType.IsValid())
+		if (DebuffDamage > 0)
 		{
 			RepBits |= (1 << 13);
 		}
+		if (DebuffDuration > 0)
+		{
+			RepBits |= (1 << 14);
+		}
+		if (DebuffFrequency > 0)
+		{
+			RepBits |= (1 << 15);
+		}
+		if (DamageType.IsValid())
+		{
+			RepBits |= (1 << 16);
+		}
+		if (!DeathImpulse.IsZero())
+		{
+			RepBits |= (1 << 17);
+		}
+		if (!KnockbackForce.IsZero())
+		{
+			RepBits |= (1 << 18);
+		}
 	}
 
-	Ar.SerializeBits(&RepBits, 14);
+	Ar.SerializeBits(&RepBits, 19);
 
 	if (RepBits & (1 << 0))
 	{
@@ -134,21 +154,33 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 	}
 	if (RepBits & (1 << 9))
 	{
-		Ar << bSuccessfulDebuff;
+		Ar << bCausesHitReact;
 	}
 	if (RepBits & (1 << 10))
 	{
-		Ar << DebuffDamage;
+		Ar << bDebuffCausesHitReact;
 	}
 	if (RepBits & (1 << 11))
 	{
-		Ar << DebuffDuration;
+		Ar << bSuccessfulDebuff;
 	}
 	if (RepBits & (1 << 12))
 	{
-		Ar << DebuffFrequency;
+		Ar << bSuccessfulKnockback;
 	}
 	if (RepBits & (1 << 13))
+	{
+		Ar << DebuffDamage;
+	}
+	if (RepBits & (1 << 14))
+	{
+		Ar << DebuffDuration;
+	}
+	if (RepBits & (1 << 15))
+	{
+		Ar << DebuffFrequency;
+	}
+	if (RepBits & (1 << 16))
 	{
 		if (Ar.IsLoading())
 		{
@@ -158,6 +190,14 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 			}
 		}
 		DamageType->NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 17))
+	{
+		DeathImpulse.NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 18))
+	{
+		KnockbackForce.NetSerialize(Ar, Map, bOutSuccess);
 	}
 
 	if (Ar.IsLoading())

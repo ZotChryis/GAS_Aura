@@ -181,6 +181,39 @@ bool UAuraAbilitySystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextH
 	return AuraContext->IsSuccessfulDebuff();
 }
 
+bool UAuraAbilitySystemLibrary::IsSuccessfulKnockback(const FGameplayEffectContextHandle ContextHandle)
+{
+	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return false;
+	}
+	
+	return AuraContext->IsSuccessfulKnockback();
+}
+
+bool UAuraAbilitySystemLibrary::GetCausesHitReact(const FGameplayEffectContextHandle ContextHandle)
+{
+	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return false;
+	}
+	
+	return AuraContext->GetCausesHitReact(); 
+}
+
+bool UAuraAbilitySystemLibrary::GetDebuffCausesHitReact(const FGameplayEffectContextHandle ContextHandle)
+{
+	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return false;
+	}
+	
+	return AuraContext->GetDebuffCausesHitReact(); 
+}
+
 float UAuraAbilitySystemLibrary::GetDebuffDamage(const FGameplayEffectContextHandle ContextHandle)
 {
 	const FAuraGameplayEffectContext* AuraContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get());
@@ -230,6 +263,28 @@ FGameplayTag UAuraAbilitySystemLibrary::GetDamageType(const FGameplayEffectConte
 	return *AuraContext->GetDamageType();
 }
 
+FVector UAuraAbilitySystemLibrary::GetDeathImpulse(FGameplayEffectContextHandle ContextHandle)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return FVector::ZeroVector;
+	}
+
+	return AuraContext->GetDeathImpulse();
+}
+
+FVector UAuraAbilitySystemLibrary::GetKnockbackForce(FGameplayEffectContextHandle ContextHandle)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return FVector::ZeroVector;
+	}
+
+	return AuraContext->GetKnockbackForce();
+}
+
 void UAuraAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& ContextHandle, bool Value)
 {
 	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
@@ -261,6 +316,39 @@ void UAuraAbilitySystemLibrary::SetIsSuccessfulDebuff(FGameplayEffectContextHand
 	}
 
 	AuraContext->SetIsSuccessfulDebuff(Value);
+}
+
+void UAuraAbilitySystemLibrary::SetIsSuccessfulKnockback(FGameplayEffectContextHandle& ContextHandle, bool Value)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+
+	AuraContext->SetIsSuccessfulKnockback(Value);
+}
+
+void UAuraAbilitySystemLibrary::SetCausesHitReact(FGameplayEffectContextHandle& ContextHandle, bool Value)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+    
+	AuraContext->SetCausesHitReact(Value);
+}
+
+void UAuraAbilitySystemLibrary::SetDebuffCausesHitReact(FGameplayEffectContextHandle& ContextHandle, bool Value)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+    
+	AuraContext->SetDebuffCausesHitReact(Value);
 }
 
 void UAuraAbilitySystemLibrary::SetDebuffDamage(FGameplayEffectContextHandle& ContextHandle, float Value)
@@ -306,6 +394,28 @@ void UAuraAbilitySystemLibrary::SetDamageType(FGameplayEffectContextHandle& Cont
 
 	const TSharedPtr<FGameplayTag>& DamageType = MakeShared<FGameplayTag>(InDamageType);
 	AuraContext->SetDamageType(DamageType);
+}
+
+void UAuraAbilitySystemLibrary::SetDeathImpulse(FGameplayEffectContextHandle& ContextHandle, const FVector& Impulse)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+	
+	AuraContext->SetDeathImpulse(Impulse);
+}
+
+void UAuraAbilitySystemLibrary::SetKnockbackForce(FGameplayEffectContextHandle& ContextHandle, const FVector& Impulse)
+{
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get());
+	if (!AuraContext)
+	{
+		return;
+	}
+	
+	AuraContext->SetKnockbackForce(Impulse);
 }
 
 void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutActors, const TArray<AActor*>& IgnoreActors, const FVector& Origin, float Radius)
@@ -387,9 +497,13 @@ FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(const 
 	FGameplayEffectContextHandle ContextHandle = Params.SourceASC->MakeEffectContext();
 	ContextHandle.AddSourceObject(Params.SourceASC->GetAvatarActor());
 	ContextHandle.AddOrigin(Params.SourceASC->GetAvatarActor()->GetActorLocation());
+	SetDeathImpulse(ContextHandle, Params.DeathImpulse);
+	SetKnockbackForce(ContextHandle, Params.KnockbackForce);
+	SetCausesHitReact(ContextHandle, Params.CausesHitReact);
+	SetDebuffCausesHitReact(ContextHandle, Params.DebuffCausesHitReact);
+	SetIsSuccessfulKnockback(ContextHandle, FMath::RandRange(1, 100) < Params.KnockbackChance);
 	
 	FGameplayEffectSpecHandle SpecHandle = Params.SourceASC->MakeOutgoingSpec(Params.DamageEffectClass, Params.AbilityLevel, ContextHandle);
-	
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Params.DamageType, Params.BaseDamage);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, FAuraGameplayTags::Get().Debuff_Chance, Params.DebuffChance);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, FAuraGameplayTags::Get().Debuff_Damage, Params.DebuffDamage);

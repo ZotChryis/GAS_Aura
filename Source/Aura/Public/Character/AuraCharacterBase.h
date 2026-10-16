@@ -4,6 +4,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayEffect.h"
+#include "AbilitySystem/DebuffNiagaraComponent.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "AuraCharacterBase.generated.h"
@@ -24,10 +25,11 @@ public:
 	UAttributeSet* GetAttributeSet() const;
 
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void MulticastHandleDeath();
+	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
 	
 	/** Combat Interface **/
-	virtual void Die() override;
+	virtual void Die(const FVector& DeathImpulse) override;
+	virtual void Knockback(const FVector& KnockbackImpulse) override;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
@@ -35,10 +37,17 @@ public:
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
 	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
 	virtual ECharacterClass GetCharacterClass_Implementation() const override;
+	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
+	virtual FOnDeath& GetOnDeathDelegate() override; 
 	/** End Combat Interface **/
-
+	
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TArray<FTaggedMontage> AttackMontages;
+	
+	FOnASCRegistered OnASCRegistered;
+	
+	UPROPERTY()
+	FOnDeath OnDeath;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
@@ -103,6 +112,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	USoundBase* DeathSound;
 
+	UPROPERTY(VisibleAnywhere, Category = "Debuffs")
+	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffVfx;
+	
 	/** Minions **/
 	int32 MinionCount = 0;
 

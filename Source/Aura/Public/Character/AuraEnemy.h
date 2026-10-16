@@ -42,7 +42,7 @@ public:
 
 	void HitReactTagChanged(const FGameplayTag Tag, int32 Count);
 
-	virtual void Die() override;
+	virtual void Die(const FVector& DeathImpulse) override;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat");
 	bool bHitReacting = false;

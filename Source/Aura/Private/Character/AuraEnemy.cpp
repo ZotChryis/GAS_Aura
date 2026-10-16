@@ -136,6 +136,8 @@ void AAuraEnemy::InitAbilityActorInfo()
 	{
 		InitializeDefaultAttributes();
 	}
+	
+	OnASCRegistered.Broadcast(AbilitySystemComponent);
 }
 
 void AAuraEnemy::InitializeDefaultAttributes() const
@@ -155,9 +157,9 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag Tag, int32 Count)
 	}
 }
 
-void AAuraEnemy::Die()
+void AAuraEnemy::Die(const FVector& DeathImpulse)
 {
-	Super::Die();
+	Super::Die(DeathImpulse);
 
 	if (AuraAIController)
 	{

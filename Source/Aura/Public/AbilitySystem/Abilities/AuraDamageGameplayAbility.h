@@ -14,6 +14,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 	void CauseDamage(AActor* TargetActor);
 
+	UFUNCTION(BlueprintPure)
 	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
 	
 protected:
@@ -27,6 +28,12 @@ protected:
 	FScalableFloat Damage;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	bool CausesHitReact = true;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	bool DebuffCausesHitReact = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
 	float DebuffChance = 20.0f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
@@ -37,4 +44,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
 	float DebuffDuration = 5.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	float DeathImpulseMagnitude = 60.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	float KnockbackChance = 50.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	float KnockbackForceMagnitude = 60.f;
 };

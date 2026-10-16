@@ -136,7 +136,6 @@ int32 AAuraCharacter::GetSpellPoints_Implementation() const
 	check(AuraPlayerState);
 	return AuraPlayerState->GetSpellPoints();
 }
-
 /** End Player Interface **/
 
 void AAuraCharacter::InitAbilityActorInfo()
@@ -160,6 +159,7 @@ void AAuraCharacter::InitAbilityActorInfo()
 	}
 
 	InitializeDefaultAttributes();
+	OnASCRegistered.Broadcast(AbilitySystemComponent);
 }
 
 void AAuraCharacter::MulticastLevelUpVfx_Implementation() const
