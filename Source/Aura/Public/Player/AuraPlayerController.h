@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "AuraPlayerController.generated.h"
 
+class UNiagaraSystem;
 class UDamageTextComponent;
 class UAuraInputConfig;
 class UInputAction;
@@ -61,6 +62,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UI")
 	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraSystem> ClickNiagaraSystem;
+	
 	UAuraAbilitySystemComponent* GetAuraAbilitySystemComponent();
 	void CursorTrace();
 	void Move(const FInputActionValue& InputActionValue);
