@@ -14,7 +14,7 @@ public:
 	virtual FString GetNextLevelDescription(int32 Level) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Ability")
-	void SpawnProjectiles(AActor* TargetActor, const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, const bool bOverridePitch = false, float PitchOverride = 0.f);
+	void SpawnProjectiles(AActor* InTargetActor, const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, const bool bOverridePitch = false, float PitchOverride = 0.f);
 
 protected:
 	
@@ -32,4 +32,11 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	float HomingAccelerationMax = 3200.f;
+	
+private:
+	TWeakObjectPtr<AActor> TargetActor;
+	TArray<TWeakObjectPtr<AAuraProjectile>> Projectiles;
+	
+	UFUNCTION()
+	void OnTargetDeath(AActor* InTargetActor);
 };

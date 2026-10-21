@@ -161,7 +161,13 @@ void UAuraAttributeSet::HandleIncomingDamage(FEffectProperties Properties)
 		}
 		else
 		{
-			if (UAuraAbilitySystemLibrary::GetCausesHitReact(Properties.EffectContextHandle))
+			bool bIsShocked = false;
+			if (Properties.TargetAvatarActor->Implements<UCombatInterface>())
+			{
+				bIsShocked = ICombatInterface::Execute_GetInShockLoop(Properties.TargetAvatarActor);
+			}
+			
+			if (!bIsShocked && UAuraAbilitySystemLibrary::GetCausesHitReact(Properties.EffectContextHandle))
 			{
 				FGameplayTagContainer TagContainer;
 				TagContainer.AddTag(FAuraGameplayTags::Get().Event_Montage_HitReact);
@@ -198,22 +204,28 @@ void UAuraAttributeSet::HandleIncomingExperience(FEffectProperties Properties)
 		const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Properties.SourceCharacter);
 		const int32 CurrentExperience = IPlayerInterface::Execute_GetExperience(Properties.SourceCharacter);
 		const int32 NewLevel = IPlayerInterface::Execute_FindLevelForExperience(Properties.SourceCharacter, CurrentExperience + LocalIncomingExperience);
+		
+		for (int i = CurrentLevel; i < NewLevel; ++i)
+		{
+			int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Properties.SourceCharacter, i);
+			int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(Properties.SourceCharacter, i);
+			IPlayerInterface::Execute_AddAttributePoints(Properties.SourceCharacter, AttributePointsReward);
+			IPlayerInterface::Execute_AddSpellPoints(Properties.SourceCharacter, SpellPointsReward);
+		}
+		
+		// We should only ever call Execute_AddPlayerLevel once per Effect execution, because we add Abilities through
+		// that function, and while we're executing an Effect, there is an Ability Lock. We cannot assume ability state will
+		// refresh until post gameplay effect.
 		const int32 NumLevelUps = NewLevel - CurrentLevel;
 		if (NumLevelUps > 0)
 		{
-			int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Properties.SourceCharacter, CurrentLevel);
-			int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(Properties.SourceCharacter, CurrentLevel);
-				
-			IPlayerInterface::Execute_AddAttributePoints(Properties.SourceCharacter, AttributePointsReward);
-			IPlayerInterface::Execute_AddSpellPoints(Properties.SourceCharacter, SpellPointsReward);
-				
 			bTopOffHealth = true;
 			bTopOffMana = true;
-				
-			IPlayerInterface::Execute_AddPlayerLevel(Properties.SourceCharacter, NumLevelUps);
-			IPlayerInterface::Execute_LevelUp(Properties.SourceCharacter);
-		}
 			
+			IPlayerInterface::Execute_LevelUp(Properties.SourceCharacter);
+			IPlayerInterface::Execute_AddPlayerLevel(Properties.SourceCharacter, NumLevelUps);
+		}
+		
 		IPlayerInterface::Execute_AddExperience(Properties.SourceCharacter, LocalIncomingExperience);
 	}
 }
@@ -299,7 +311,6 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Properties)
 	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration;
 	Effect->DurationMagnitude = FScalableFloat(DebuffDuration);
 	Effect->Period = DebuffFrequency;
-	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
 	Effect->StackLimitCount = 1;
 	Effect->StackDurationRefreshPolicy = EGameplayEffectStackingDurationPolicy::ExtendDuration;
 	
@@ -315,7 +326,9 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Properties)
 		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType));
 		DebuffContext->SetDamageType(DebuffDamageType);
 		DebuffContext->SetCausesHitReact(UAuraAbilitySystemLibrary::GetDebuffCausesHitReact(Properties.EffectContextHandle));
-		MutableSpec->DynamicGrantedTags.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+		
+		const FGameplayTag& DebuffTag = GameplayTags.DamageTypesToDebuffs[DamageType];
+		MutableSpec->DynamicGrantedTags.AddTag(DebuffTag);
 		
 		Properties.SourceASC->ApplyGameplayEffectSpecToTarget(*MutableSpec, Properties.TargetASC);
 	}

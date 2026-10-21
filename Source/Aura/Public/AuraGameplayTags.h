@@ -69,9 +69,13 @@ public:
 
 	// Abilities
 	FGameplayTag Ability_Firebolt;
-	FGameplayTag Cooldown_Firebolt;
-	
 	FGameplayTag Ability_Electrocute;
+	
+	FGameplayTag Ability_Passive_HaloOfProtection;
+	FGameplayTag Ability_Passive_LifeSiphon;
+	FGameplayTag Ability_Passive_ManaSiphon;
+	
+	FGameplayTag Cooldown_Firebolt;
 	FGameplayTag Cooldown_Electrocute;
 	
 	FGameplayTag Ability_None;
@@ -102,6 +106,7 @@ public:
 
 	// Montage Events
 	FGameplayTag Event_Montage_Firebolt;
+	FGameplayTag Event_Montage_Electrocute;
 	FGameplayTag Event_Montage_HitReact;
 
 	FGameplayTag Event_Montage_Attack_1;
@@ -109,14 +114,22 @@ public:
 	FGameplayTag Event_Montage_Attack_3;
 	FGameplayTag Event_Montage_Attack_4;
 
+	// Player 
+	FGameplayTag Player_Block_InputPressed;
+	FGameplayTag Player_Block_InputHeld;
+	FGameplayTag Player_Block_InputReleased;
+	FGameplayTag Player_Block_CursorTrace;
+	
 	// Combat Sockets
 	FGameplayTag CombatSocket_Weapon;
 	FGameplayTag CombatSocket_LeftHand;
 	FGameplayTag CombatSocket_RightHand;
 	FGameplayTag CombatSocket_Tail;
-
+	
 	// Cues
 	FGameplayTag GameplayCue_MeleeImpact;
+	FGameplayTag GameplayCue_ShockCast;
+	FGameplayTag GameplayCue_ShockLoop;
 
 private:
 	static FAuraGameplayTags GameplayTags;

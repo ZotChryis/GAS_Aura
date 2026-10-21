@@ -20,6 +20,7 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 
 public:
 	AAuraCharacterBase();
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
@@ -27,9 +28,16 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
 	
+	UFUNCTION()
+	virtual void OnRep_Burned();
+	
+	UFUNCTION()
+	virtual void OnRep_Stunned();
+	
 	/** Combat Interface **/
 	virtual void Die(const FVector& DeathImpulse) override;
 	virtual void Knockback(const FVector& KnockbackImpulse) override;
+	virtual USkeletalMeshComponent* GetWeaponMesh_Implementation() const override;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
@@ -37,8 +45,10 @@ public:
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
 	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
 	virtual ECharacterClass GetCharacterClass_Implementation() const override;
-	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
-	virtual FOnDeath& GetOnDeathDelegate() override; 
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
+	virtual FOnDeath& GetOnDeathDelegate() override;
+	virtual bool GetInShockLoop_Implementation() override;
+	virtual void SetInShockLoop_Implementation(const bool bInLoop) override;
 	/** End Combat Interface **/
 	
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -48,8 +58,20 @@ public:
 	
 	UPROPERTY()
 	FOnDeath OnDeath;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_Burned, BlueprintReadOnly, Category = "Combat")
+	bool bIsBurned = false;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_Stunned, BlueprintReadOnly, Category = "Combat")
+	bool bIsStunned = false;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Combat")
+	bool bIsShockLoop = false;
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "Combat");
+	float BaseWalkSpeed = 600.f;
+	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
 
@@ -90,6 +112,7 @@ protected:
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	
 	void Dissolve();
+	virtual void StunTagChanged(const FGameplayTag Tag, int32 Count);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
@@ -115,9 +138,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Debuffs")
 	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffVfx;
 	
+	UPROPERTY(VisibleAnywhere, Category = "Debuffs")
+	TObjectPtr<UDebuffNiagaraComponent> StunDebuffVfx;
+	
 	/** Minions **/
 	int32 MinionCount = 0;
-
 	virtual int32 GetMinionCount_Implementation() override;
 	virtual void UpdateMinionCount_Implementation(int32 Amount) override;
 

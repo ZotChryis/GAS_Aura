@@ -44,7 +44,7 @@ FString UAuraFirebolt::GetNextLevelDescription(int32 Level)
 	);
 }
 
-void UAuraFirebolt::SpawnProjectiles(AActor* TargetActor, const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, const bool bOverridePitch, float PitchOverride)
+void UAuraFirebolt::SpawnProjectiles(AActor* InTargetActor, const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, const bool bOverridePitch, float PitchOverride)
 {
 	AActor* Actor = GetAvatarActorFromActorInfo();
 	if (!Actor->HasAuthority())
@@ -61,6 +61,13 @@ void UAuraFirebolt::SpawnProjectiles(AActor* TargetActor, const FVector& Project
 		Rotation.Pitch = PitchOverride;
 	}
 	
+	TargetActor = InTargetActor;
+	ICombatInterface* TargetCombatInterface = Cast<ICombatInterface>(InTargetActor);
+	if (TargetCombatInterface)
+	{
+		TargetCombatInterface->GetOnDeathDelegate().AddDynamic(this, &UAuraFirebolt::OnTargetDeath);
+	}
+	
 	const int32 NumProjectiles = FMath::Min(MaxNumProjectile, GetAbilityLevel());
 	const FVector Forward = Rotation.Vector();
 	TArray<FRotator> Rotations = UAuraAbilitySystemLibrary::EvenlySpreadRotations(Forward, FVector::UpVector, ProjectileSpread, NumProjectiles);
@@ -72,10 +79,11 @@ void UAuraFirebolt::SpawnProjectiles(AActor* TargetActor, const FVector& Project
 
 		AAuraProjectile* ProjectileInstance = GetWorld()->SpawnActorDeferred<AAuraProjectile>(ProjectileClass, SpawnTransform, Actor,Cast<APawn>(Actor), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		ProjectileInstance->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
+		Projectiles.Add(ProjectileInstance);
 		
-		if (TargetActor && TargetActor->Implements<UCombatInterface>())
+		if (InTargetActor && TargetCombatInterface)
 		{
-			ProjectileInstance->ProjectileMovement->HomingTargetComponent = TargetActor->GetRootComponent();
+			ProjectileInstance->ProjectileMovement->HomingTargetComponent = InTargetActor->GetRootComponent();
 		}
 		else
 		{
@@ -88,5 +96,17 @@ void UAuraFirebolt::SpawnProjectiles(AActor* TargetActor, const FVector& Project
 		ProjectileInstance->ProjectileMovement->HomingAccelerationMagnitude = FMath::FRandRange(HomingAccelerationMin, HomingAccelerationMax);
 		
 		ProjectileInstance->FinishSpawning(SpawnTransform);
+	}
+}
+
+void UAuraFirebolt::OnTargetDeath(AActor* InTargetActor)
+{
+	for (TWeakObjectPtr Ptr : Projectiles)
+	{
+		if (AAuraProjectile* AuraProjectile = Ptr.Get())
+		{
+			AuraProjectile->HomingTarget = nullptr;
+			AuraProjectile->ProjectileMovement->HomingTargetComponent = nullptr;
+		}
 	}
 }

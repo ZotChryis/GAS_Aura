@@ -5,8 +5,10 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Aura/Aura.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Net/UnrealNetwork.h"
 
 AAuraCharacterBase::AAuraCharacterBase()
 {
@@ -15,6 +17,12 @@ AAuraCharacterBase::AAuraCharacterBase()
 	BurnDebuffVfx = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffVFX");
 	BurnDebuffVfx->SetupAttachment(GetRootComponent());
 	BurnDebuffVfx->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
+	BurnDebuffVfx->Deactivate();
+	
+	StunDebuffVfx = CreateDefaultSubobject<UDebuffNiagaraComponent>("StunDebuffVFX");
+	StunDebuffVfx->SetupAttachment(GetRootComponent());
+	StunDebuffVfx->DebuffTag = FAuraGameplayTags::Get().Debuff_Stun;
+	StunDebuffVfx->Deactivate();
 	
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	
@@ -26,6 +34,15 @@ AAuraCharacterBase::AAuraCharacterBase()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_PROJECTILE, ECR_Overlap);
 	GetMesh()->SetGenerateOverlapEvents(true);
+}
+
+void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AAuraCharacterBase, bIsBurned);
+	DOREPLIFETIME(AAuraCharacterBase, bIsStunned);
+	DOREPLIFETIME(AAuraCharacterBase, bIsShockLoop);
 }
 
 void AAuraCharacterBase::InitAbilityActorInfo()
@@ -83,6 +100,12 @@ UAttributeSet* AAuraCharacterBase::GetAttributeSet() const
 	return AttributeSet;
 }
 
+void AAuraCharacterBase::StunTagChanged(const FGameplayTag Tag, int32 Count)
+{
+	bIsStunned = Count > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;
+}
+
 /** Combat Interface **/
 void AAuraCharacterBase::Die(const FVector& DeathImpulse)
 {
@@ -93,6 +116,11 @@ void AAuraCharacterBase::Die(const FVector& DeathImpulse)
 void AAuraCharacterBase::Knockback(const FVector& KnockbackImpulse)
 {
 	LaunchCharacter(KnockbackImpulse, false, false);
+}
+
+USkeletalMeshComponent* AAuraCharacterBase::GetWeaponMesh_Implementation() const
+{
+	return Weapon;
 }
 
 UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
@@ -138,7 +166,7 @@ ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation() const
 	return CharacterClass;
 }
 
-FOnASCRegistered AAuraCharacterBase::GetOnASCRegisteredDelegate()
+FOnASCRegistered& AAuraCharacterBase::GetOnASCRegisteredDelegate()
 {
 	return OnASCRegistered;
 }
@@ -146,6 +174,40 @@ FOnASCRegistered AAuraCharacterBase::GetOnASCRegisteredDelegate()
 FOnDeath& AAuraCharacterBase::GetOnDeathDelegate()
 {
 	return OnDeath;
+}
+
+bool AAuraCharacterBase::GetInShockLoop_Implementation()
+{
+	return bIsShockLoop;
+}
+
+void AAuraCharacterBase::SetInShockLoop_Implementation(const bool bInLoop)
+{
+	bIsShockLoop = bInLoop;
+}
+
+void AAuraCharacterBase::OnRep_Burned()
+{
+	if (bIsBurned)
+	{
+		BurnDebuffVfx->Activate();
+	}
+	else
+	{
+		BurnDebuffVfx->Deactivate();
+	}
+}
+
+void AAuraCharacterBase::OnRep_Stunned()
+{
+	if (bIsStunned)
+	{
+		StunDebuffVfx->Activate();
+	}
+	else
+	{
+		StunDebuffVfx->Deactivate();
+	}
 }
 
 /** End Combat Interface **/

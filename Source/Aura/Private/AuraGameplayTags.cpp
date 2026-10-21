@@ -72,6 +72,10 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Fire.Firebolt"), FString("Firebolt ability."));
 	GameplayTags.Ability_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Lightning.Electrocute"), FString("Electrocute ability."));
 	
+	GameplayTags.Ability_Passive_HaloOfProtection = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Passive.HaloOfProtection"), FString("Passive Halo of Protection."));
+	GameplayTags.Ability_Passive_LifeSiphon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Passive.LifeSiphon"), FString("Passive Life Siphon."));
+	GameplayTags.Ability_Passive_ManaSiphon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Passive.ManaSiphon"), FString("Passive Mana Siphon."));
+	
 	GameplayTags.Ability_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Attack"), FString("Basic attack ability."));
 	GameplayTags.Ability_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Summon"), FString("Basic summon ability."));
 	GameplayTags.Ability_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.HitReact"), FString("Basic hit react."));
@@ -103,6 +107,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 
 	// Gameplay Events
 	GameplayTags.Event_Montage_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Firebolt"), FString("Event fired during the Firebolt montage on the point to shoot the projectile."));
+	GameplayTags.Event_Montage_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Electrocute"), FString("Event fired during the Electrocute montage on the point to shoot the projectile."));
 	GameplayTags.Event_Montage_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.HitReact"), FString("Used to trigger hit react montage."));
 
 	GameplayTags.Event_Montage_Attack_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.1"), FString("Generic attack montage event tag."));
@@ -110,6 +115,13 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_Montage_Attack_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.3"), FString("Generic attack montage event tag."));
 	GameplayTags.Event_Montage_Attack_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.4"), FString("Generic attack montage event tag."));
 
+	// Player
+	GameplayTags.Player_Block_InputPressed = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Player.Block.InputPressed"), FString("Block Input Pressed callbacks."));
+	GameplayTags.Player_Block_InputHeld = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Player.Block.InputHeld"), FString("Block Input Held callbacks."));
+	GameplayTags.Player_Block_InputReleased = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Player.Block.InputReleased"), FString("Block Input Released callbacks."));
+	GameplayTags.Player_Block_CursorTrace = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Player.Block.CursorTrace"), FString("Block Cursor Trace."));
+
+	// Combat Sockets
 	GameplayTags.CombatSocket_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.Weapon"), FString("Event fired during the Weapon attack animations on the point to do damage."));
 	GameplayTags.CombatSocket_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.LeftHand"), FString("Event fired during the Left Hand attack animations on the point to do damage."));
 	GameplayTags.CombatSocket_RightHand = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("CombatSocket.RightHand"), FString("Event fired during the Right Hand attack animations on the point to do damage."));
@@ -117,4 +129,6 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 
 	// Cues
 	GameplayTags.GameplayCue_MeleeImpact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.MeleeImpact"), FString("Cue used to replicate melee impacts."));
+	GameplayTags.GameplayCue_ShockCast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Shock.Cast"), FString("Cue used to replicate shock casts."));
+	GameplayTags.GameplayCue_ShockLoop = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Shock.Loop"), FString("Cue used to replicate shock loops."));
 }

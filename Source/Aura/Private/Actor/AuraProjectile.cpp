@@ -52,13 +52,19 @@ void AAuraProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	SetLifeSpan(LifeSpan);
-
+	SetReplicatingMovement(true);
+	
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AAuraProjectile::OnSphereOverlap);
 	UGameplayStatics::SpawnSoundAttached(TravelSound, GetRootComponent(), NAME_None, GetActorLocation(), FRotator::ZeroRotator, EAttachLocation::Type::KeepRelativeOffset, true);
 }
 
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!DamageEffectParams.SourceASC)
+	{
+		return;
+	}
+	
 	AActor* ProjectileOwner = DamageEffectParams.SourceASC.Get()->GetAvatarActor();
 	if (UAuraAbilitySystemLibrary::AreAllied(OtherActor, ProjectileOwner))
 	{

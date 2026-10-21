@@ -39,6 +39,9 @@ public:
 	virtual int32 GetSpellPoints_Implementation() const override;
 	/** End Player Interface **/
 
+	virtual void OnRep_Burned() override;
+	virtual void OnRep_Stunned() override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
 
