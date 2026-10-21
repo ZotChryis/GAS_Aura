@@ -9,6 +9,7 @@
 #include "Interaction/CombatInterface.h"
 #include "AuraCharacterBase.generated.h"
 
+class UPassiveNiagaraComponent;
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UAnimMontage;
@@ -20,6 +21,7 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 
 public:
 	AAuraCharacterBase();
+	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -156,5 +158,17 @@ private:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
 
+	UPROPERTY(VisibleAnywhere, Category="Combat")
+	TObjectPtr<UPassiveNiagaraComponent> HaloOfProtectionNiagaraComponent;
+	
+	UPROPERTY(VisibleAnywhere, Category="Combat")
+	TObjectPtr<UPassiveNiagaraComponent> LifeSiphonNiagaraComponent;
+	
+	UPROPERTY(VisibleAnywhere, Category="Combat")
+	TObjectPtr<UPassiveNiagaraComponent> ManaSiphonNiagaraComponent;
+	
+	UPROPERTY(VisibleAnywhere, Category="Combat")
+	TObjectPtr<USceneComponent> EffectAttachComponent;
+	
 	bool bDead = false;
 };

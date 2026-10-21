@@ -10,6 +10,7 @@ DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_FourParams(FAbilityEquipped, const FGameplayTag& /* AbilityTag */, const FGameplayTag& /* StatusTag */, const FGameplayTag& /* InputTag */, const FGameplayTag& /* PrevInputTag */)
 DECLARE_MULTICAST_DELEGATE_OneParam(FDeactivatePassiveAbility, const FGameplayTag& /* AbilityTag */);
+DECLARE_MULTICAST_DELEGATE_OneParam(FActivatePassiveAbility, const FGameplayTag& /* AbilityTag */);
 
 UCLASS()
 class AURA_API UAuraAbilitySystemComponent : public UAbilitySystemComponent
@@ -34,10 +35,11 @@ public:
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 	void ForEachAbility(FForEachAbility& Delegate);
-	
-	void ClearSlot(FGameplayAbilitySpec* Spec);
+
+	static void ClearSlot(FGameplayAbilitySpec* Spec);
 	void ClearAbilitiesOfSlot(const FGameplayTag& InputTag);
 	static bool AbilityHasInputTag(FGameplayAbilitySpec* Spec, const FGameplayTag& InputTag);
+	static bool AbilityHasAnyInputTag(FGameplayAbilitySpec* Spec);
 	
 	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetAbilityInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
@@ -45,6 +47,18 @@ public:
 	FGameplayTag GetStatusTagFromAbilityTag(const FGameplayTag AbilityTag);
 	FGameplayTag GetInputTagFromAbilityTag(const FGameplayTag AbilityTag);
 	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& InAbilityTag);
+	FGameplayAbilitySpec* GetSpecFromInputTag(const FGameplayTag& InputTag);
+	bool IsSlotEmpty(const FGameplayTag& InputTag);
+	static bool IsAbilityInSlot(const FGameplayAbilitySpec& AbilitySpec, const FGameplayTag& InputTag);
+	bool IsPassiveAbility(const FGameplayAbilitySpec& AbilitySpec) const;
+	bool IsOffensiveAbility(const FGameplayAbilitySpec& AbilitySpec) const;
+	static void AssignSlotToAbility(FGameplayAbilitySpec& AbilitySpec, const FGameplayTag& InputTag);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPassiveAbilityActivated(const FGameplayTag& AbilityTag);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPassiveAbilityDeactivated(const FGameplayTag& AbilityTag);
 	
 	void UpgradeAttribute(const FGameplayTag& AttributeTag);
 	void UpdateAbilityStatuses(int32 Level);
@@ -57,6 +71,7 @@ public:
 	FAbilityStatusChanged AbilityStatusChanged;
 	FAbilityEquipped AbilityEquipped;
 	FDeactivatePassiveAbility PassiveAbilityDeactivated;
+	FActivatePassiveAbility PassiveAbilityActivated;
 	
 protected:
 	UFUNCTION(Client, Reliable)

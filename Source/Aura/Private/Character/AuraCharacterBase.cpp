@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/Passives/PassiveNiagaraComponent.h"
 #include "Aura/Aura.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -24,6 +25,21 @@ AAuraCharacterBase::AAuraCharacterBase()
 	StunDebuffVfx->DebuffTag = FAuraGameplayTags::Get().Debuff_Stun;
 	StunDebuffVfx->Deactivate();
 	
+	EffectAttachComponent = CreateDefaultSubobject<USceneComponent>("EffectAttachPoint");
+	EffectAttachComponent->SetupAttachment(GetRootComponent());
+	
+	HaloOfProtectionNiagaraComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("HaloOfProtectionVFX");
+	HaloOfProtectionNiagaraComponent->SetupAttachment(EffectAttachComponent);
+	HaloOfProtectionNiagaraComponent->PassiveAbilityTag = FAuraGameplayTags::Get().Ability_Passive_HaloOfProtection;
+	
+	LifeSiphonNiagaraComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("LifeSiphonVFX");
+	LifeSiphonNiagaraComponent->SetupAttachment(EffectAttachComponent);
+	LifeSiphonNiagaraComponent->PassiveAbilityTag = FAuraGameplayTags::Get().Ability_Passive_LifeSiphon;
+	
+	ManaSiphonNiagaraComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("ManaSiphonVFX");
+	ManaSiphonNiagaraComponent->SetupAttachment(EffectAttachComponent);
+	ManaSiphonNiagaraComponent->PassiveAbilityTag = FAuraGameplayTags::Get().Ability_Passive_ManaSiphon;
+	
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
@@ -34,6 +50,13 @@ AAuraCharacterBase::AAuraCharacterBase()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_PROJECTILE, ECR_Overlap);
 	GetMesh()->SetGenerateOverlapEvents(true);
+}
+
+void AAuraCharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+	EffectAttachComponent->SetWorldRotation(FRotator::ZeroRotator);
 }
 
 void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
