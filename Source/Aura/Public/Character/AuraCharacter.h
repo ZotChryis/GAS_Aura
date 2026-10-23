@@ -37,6 +37,9 @@ public:
 	virtual void LevelUp_Implementation() override;
 	virtual int32 GetAttributePoints_Implementation() const override;
 	virtual int32 GetSpellPoints_Implementation() const override;
+	virtual void ShowMagicCircle_Implementation() override;
+	virtual void HideMagicCircle_Implementation() override;
+	virtual void SetMagicCircleMaterial_Implementation(UMaterialInterface* InMaterial) override;
 	/** End Player Interface **/
 
 	virtual void OnRep_Burned() override;

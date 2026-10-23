@@ -70,6 +70,7 @@ public:
 	// Abilities
 	FGameplayTag Ability_Firebolt;
 	FGameplayTag Ability_Electrocute;
+	FGameplayTag Ability_ArcaneShards;
 	
 	FGameplayTag Ability_Passive_HaloOfProtection;
 	FGameplayTag Ability_Passive_LifeSiphon;
@@ -77,6 +78,7 @@ public:
 	
 	FGameplayTag Cooldown_Firebolt;
 	FGameplayTag Cooldown_Electrocute;
+	FGameplayTag Cooldown_ArcaneShards;
 	
 	FGameplayTag Ability_None;
 	FGameplayTag Ability_Attack;
@@ -107,6 +109,7 @@ public:
 	// Montage Events
 	FGameplayTag Event_Montage_Firebolt;
 	FGameplayTag Event_Montage_Electrocute;
+	FGameplayTag Event_Montage_ArcaneShards;
 	FGameplayTag Event_Montage_HitReact;
 
 	FGameplayTag Event_Montage_Attack_1;
@@ -130,6 +133,7 @@ public:
 	FGameplayTag GameplayCue_MeleeImpact;
 	FGameplayTag GameplayCue_ShockCast;
 	FGameplayTag GameplayCue_ShockLoop;
+	FGameplayTag GameplayCue_ArcaneShards;
 
 private:
 	static FAuraGameplayTags GameplayTags;

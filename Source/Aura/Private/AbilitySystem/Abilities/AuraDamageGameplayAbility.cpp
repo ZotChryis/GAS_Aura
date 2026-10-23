@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "SAdvancedRotationInputBox.h"
 
 void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
@@ -22,7 +23,10 @@ void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	OwnerASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 }
 
-FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor) const
+FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor,
+	const FVector Origin, const bool bOverrideKnockback, const FVector InKnockbackDirectionOverride,
+	const bool bOverrideDeathImpulse, const FVector InDeathImpulseDirectionOverride, const bool bOverridePitch,
+	const float InPitchOverride) const
 {
 	FDamageEffectParams DamageEffectParams;
 	DamageEffectParams.WorldContextObject = GetAvatarActorFromActorInfo();
@@ -42,14 +46,51 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 	DamageEffectParams.KnockbackChance = KnockbackChance;
 	DamageEffectParams.KnockbackForceMagnitude = KnockbackForceMagnitude;
 	
+	DamageEffectParams.bIsRadialDamage = bIsRadialDamage;
+	if (bIsRadialDamage)
+	{
+		DamageEffectParams.RadialDamageInnerRadius = RadialDamageInnerRadius;
+		DamageEffectParams.RadialDamageOuterRadius = RadialDamageOuterRadius;
+		DamageEffectParams.RadialDamageOrigin = Origin;
+	}
+	
 	if (IsValid(TargetActor))
 	{
 		FRotator Rot = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).GetSafeNormal().Rotation();
-		Rot.Pitch = 45.f;
 		const FVector ToTarget = Rot.Vector();
-		DamageEffectParams.DeathImpulse = ToTarget * DeathImpulseMagnitude;
-		DamageEffectParams.KnockbackForce = ToTarget * KnockbackForceMagnitude;
+		Rot.Pitch = bOverridePitch ? InPitchOverride : 45.f;
 		
+		if (!bOverrideKnockback)
+		{
+			DamageEffectParams.KnockbackForce = ToTarget * KnockbackForceMagnitude;
+		}
+		
+		if (!bOverrideDeathImpulse)
+		{
+			DamageEffectParams.DeathImpulse = ToTarget * DeathImpulseMagnitude;
+		}
+	}
+	
+	if (bOverrideKnockback)
+	{
+		DamageEffectParams.KnockbackForce = InKnockbackDirectionOverride.GetSafeNormal() * KnockbackForceMagnitude;
+		if (bOverridePitch)
+		{
+			FRotator KnockbackRotation = InKnockbackDirectionOverride.GetSafeNormal().Rotation();
+			KnockbackRotation.Pitch = InPitchOverride;
+			DamageEffectParams.KnockbackForce = KnockbackRotation.Vector() * KnockbackForceMagnitude;
+		}
+	}
+	
+	if (bOverrideDeathImpulse)
+	{
+		DamageEffectParams.DeathImpulse = InDeathImpulseDirectionOverride.GetSafeNormal() * DeathImpulseMagnitude;
+		if (bOverridePitch)
+		{
+			FRotator DeathImpulseRotation = InDeathImpulseDirectionOverride.GetSafeNormal().Rotation();
+			DeathImpulseRotation.Pitch = InPitchOverride;
+			DamageEffectParams.DeathImpulse = DeathImpulseRotation.Vector() * DeathImpulseMagnitude;
+		}
 	}
 	
 	return DamageEffectParams;

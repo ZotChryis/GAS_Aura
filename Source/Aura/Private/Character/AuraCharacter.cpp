@@ -126,16 +126,42 @@ void AAuraCharacter::LevelUp_Implementation()
 
 int32 AAuraCharacter::GetAttributePoints_Implementation() const
 {
-	AAuraPlayerState* AuraPlayerState = AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
 	check(AuraPlayerState);
 	return AuraPlayerState->GetAttributePoints();
 }
 
 int32 AAuraCharacter::GetSpellPoints_Implementation() const
 {
-	AAuraPlayerState* AuraPlayerState = AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
 	check(AuraPlayerState);
 	return AuraPlayerState->GetSpellPoints();
+}
+
+void AAuraCharacter::ShowMagicCircle_Implementation()
+{
+	AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController());
+	check(AuraPlayerController);
+	
+	AuraPlayerController->ShowMagicCircle();
+	AuraPlayerController->SetShowMouseCursor(false);
+}
+
+void AAuraCharacter::HideMagicCircle_Implementation()
+{
+	AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController());
+	check(AuraPlayerController);
+	
+	AuraPlayerController->HideMagicCircle();
+	AuraPlayerController->SetShowMouseCursor(true);
+}
+
+void AAuraCharacter::SetMagicCircleMaterial_Implementation(UMaterialInterface* InMaterial)
+{
+	AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController());
+	check(AuraPlayerController);
+	
+	AuraPlayerController->SetMagicCircleMaterial(InMaterial);
 }
 
 void AAuraCharacter::OnRep_Burned()

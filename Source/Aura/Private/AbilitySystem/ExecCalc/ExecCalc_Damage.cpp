@@ -6,6 +6,7 @@
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 void AuraDamageStatics::InitializeTagsToCaptureDefsMap()
 {
@@ -130,8 +131,39 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		float Resistance;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().TagsToCaptureDefs[ResistanceTag], EvalParams, Resistance);
 		Resistance = FMath::Clamp<float>(Resistance, 0.f, 100.f);;
+		float EffectiveDamage = ((100.f - Resistance) / 100.f) * Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
 		
-		Damage += ((100.f - Resistance) / 100.f) * Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
+		if (EffectiveDamage <= 0.f)
+		{
+			continue;
+		}
+		
+		if (UAuraAbilitySystemLibrary::IsRadialDamage(ContextHandle))
+		{
+			if (ICombatInterface* TargetCombatInterface = Cast<ICombatInterface>(TargetAvatar))
+			{
+				TargetCombatInterface->GetOnDamageDelegate().AddLambda([&](float DamageAmount)
+				{
+					EffectiveDamage = DamageAmount;
+				});
+			}
+			
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				TargetAvatar, 
+				EffectiveDamage, 
+				0.f, 
+				UAuraAbilitySystemLibrary::GetRadialDamageOrigin(ContextHandle), 
+				UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(ContextHandle), 
+				UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(ContextHandle),
+				1.f,
+				UDamageType::StaticClass(),
+				TArray<AActor*>(),
+				SourceAvatar,
+				nullptr
+			);
+		}
+		
+		Damage += EffectiveDamage;
 	}
 	
 	// Capture block chance on target, and determine if there was a successful block

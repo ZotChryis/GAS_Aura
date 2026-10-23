@@ -22,7 +22,8 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 public:
 	AAuraCharacterBase();
 	virtual void Tick(float DeltaTime) override;
-	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
@@ -49,6 +50,7 @@ public:
 	virtual ECharacterClass GetCharacterClass_Implementation() const override;
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
 	virtual FOnDeath& GetOnDeathDelegate() override;
+	virtual FOnDamageSignature& GetOnDamageDelegate() override;
 	virtual bool GetInShockLoop_Implementation() override;
 	virtual void SetInShockLoop_Implementation(const bool bInLoop) override;
 	/** End Combat Interface **/
@@ -57,6 +59,7 @@ public:
 	TArray<FTaggedMontage> AttackMontages;
 	
 	FOnASCRegistered OnASCRegistered;
+	FOnDamageSignature OnDamage;
 	
 	UPROPERTY()
 	FOnDeath OnDeath;
