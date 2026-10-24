@@ -184,4 +184,19 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category="AuraAbilitySystemLibrary|Gameplay Mechanics")
 	static TArray<FVector> EvenlySpreadVectors(const FVector& Forward, const FVector& Axis, const float Spread, const int32 NumVectors);
+	
+	/*
+	 *	Damage Effect Params
+	 */
+	UFUNCTION(BlueprintCallable,Category="AuraAbilitySystemLibrary|Damage Effect Params" )
+	static void SetTargetDamageEffectParams(UPARAM(ref) FDamageEffectParams& Params, AActor* Target);
+	
+	UFUNCTION(BlueprintCallable,Category="AuraAbilitySystemLibrary|Damage Effect Params" )
+	static void SetIsRadialDamageEffectParams(UPARAM(ref) FDamageEffectParams& Params, bool Value, float InnerRadius, float OuterRadius, FVector Origin);
+	
+	UFUNCTION(BlueprintCallable,Category="AuraAbilitySystemLibrary|Damage Effect Params" )
+	static void SetKnockbackDirectionEffectParams(UPARAM(ref) FDamageEffectParams& Params, FVector Direction, float Magnitude = 0.f);
+	
+	UFUNCTION(BlueprintCallable,Category="AuraAbilitySystemLibrary|Damage Effect Params" )
+	static void SetDeathImpulseDirectionEffectParams(UPARAM(ref) FDamageEffectParams& Params, FVector Direction, float Magnitude = 0.f);
 };

@@ -10,8 +10,9 @@ FString UAuraElectrocute::GetDescription(int32 Level)
 		"<Small>Level: </><Level>%d</>\n"
 		"<Small>Mana Cost: </><Mana>%.1f</>\n"
 		"<Small>Cooldown: </><Cooldown>%.1f</>\n\n"
-		"<Default>Channel a beam that connects up to %d targets, "
-		"dealing <Damage>%.1f</> lightning damage per tick with a chance to stun when ending the beam.</>"), 
+		"<Default>Channel a beam that connects up to %d targets, dealing </>"
+		"<Damage>%.1f</> "
+		"<Default>lightning damage per tick with a chance to stun when ending the beam.</>"), 
 		Level,
 		ManaCost,
 		Cooldown,
@@ -30,8 +31,9 @@ FString UAuraElectrocute::GetNextLevelDescription(int32 Level)
 		"<Small>Level: </><Level>%d</>\n"
 		"<Small>Mana Cost: </><Mana>%.1f</>\n"
 		"<Small>Cooldown: </><Cooldown>%.1f</>\n\n"
-		"<Default>Channel a beam that connects up to %d targets,</>"
-		"<Default> dealing <Damage>%.1f</> lightning damage per tick with a chance to stun when ending the beam.</>"), 
+		"<Default>Channel a beam that connects up to %d targets, dealing </>"
+		"<Damage>%.1f</> "
+		"<Default>lightning damage per tick with a chance to stun when ending the beam.</>"), 
 		Level,
 		ManaCost,
 		Cooldown,

@@ -17,7 +17,6 @@ class AURA_API AAuraProjectile : public AActor
 	
 public:	
 	AAuraProjectile();
-	void OnHit();
 	virtual void Destroyed() override;
 	
 	UPROPERTY(VisibleAnywhere)
@@ -34,10 +33,16 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-
+	bool IsValidOverlap(AActor* OtherActor) const;
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void OnHit();
+	
 	UFUNCTION()
-	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	bool bHit = false;
+	
 private:
 	UPROPERTY(EditDefaultsOnly)
 	float LifeSpan = 15.f;
@@ -50,6 +55,4 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> TravelSound;
-
-	bool bHit = false;
 };

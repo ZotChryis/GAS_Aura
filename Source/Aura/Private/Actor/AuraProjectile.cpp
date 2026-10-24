@@ -58,15 +58,25 @@ void AAuraProjectile::BeginPlay()
 	UGameplayStatics::SpawnSoundAttached(TravelSound, GetRootComponent(), NAME_None, GetActorLocation(), FRotator::ZeroRotator, EAttachLocation::Type::KeepRelativeOffset, true);
 }
 
-void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+bool AAuraProjectile::IsValidOverlap(AActor* OtherActor) const
 {
 	if (!DamageEffectParams.SourceASC)
 	{
-		return;
+		return false;
 	}
 	
 	AActor* ProjectileOwner = DamageEffectParams.SourceASC.Get()->GetAvatarActor();
 	if (UAuraAbilitySystemLibrary::AreAllied(OtherActor, ProjectileOwner))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!IsValidOverlap(OtherActor))
 	{
 		return;
 	}

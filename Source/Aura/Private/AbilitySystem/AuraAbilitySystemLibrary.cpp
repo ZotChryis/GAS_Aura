@@ -669,3 +669,34 @@ TArray<FVector> UAuraAbilitySystemLibrary::EvenlySpreadVectors(const FVector& Fo
 	
 	return Result;
 }
+
+void UAuraAbilitySystemLibrary::SetTargetDamageEffectParams(FDamageEffectParams& Params, AActor* Target)
+{
+	if (Target)
+	{
+		if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target))
+		{
+			Params.TargetASC = ASC;
+		}
+	}
+}
+
+void UAuraAbilitySystemLibrary::SetIsRadialDamageEffectParams(FDamageEffectParams& Params, bool Value, float InnerRadius, float OuterRadius, FVector Origin)
+{
+	Params.bIsRadialDamage = Value;
+	Params.RadialDamageInnerRadius = InnerRadius;
+	Params.RadialDamageOuterRadius = OuterRadius;
+	Params.RadialDamageOrigin = Origin;
+}
+
+void UAuraAbilitySystemLibrary::SetKnockbackDirectionEffectParams(FDamageEffectParams& Params, FVector Direction, float Magnitude)
+{
+	const float MagitudeToUse = FMath::IsNearlyZero(Magnitude) ? Params.KnockbackForceMagnitude : Magnitude;
+	Params.KnockbackForce = Direction.GetSafeNormal() * MagitudeToUse;
+}
+
+void UAuraAbilitySystemLibrary::SetDeathImpulseDirectionEffectParams(FDamageEffectParams& Params, FVector Direction, float Magnitude)
+{
+	const float MagitudeToUse = FMath::IsNearlyZero(Magnitude) ? Params.DeathImpulseMagnitude : Magnitude;
+	Params.DeathImpulse = Direction.GetSafeNormal() * MagitudeToUse;
+}

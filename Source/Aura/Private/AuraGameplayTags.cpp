@@ -70,6 +70,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_None = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.None"), FString("No gameplay ability, used in some instances for 'null'."));
 	
 	GameplayTags.Ability_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Fire.Firebolt"), FString("Firebolt ability."));
+	GameplayTags.Ability_Fireblast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Fire.Fireblast"), FString("Fireblast ability."));
 	GameplayTags.Ability_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Lightning.Electrocute"), FString("Electrocute ability."));
 	GameplayTags.Ability_ArcaneShards = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Arcane.ArcaneShards"), FString("Arcane Shards ability."));
 	
@@ -83,6 +84,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	
 	// Cooldowns
 	GameplayTags.Cooldown_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Fire.Firebolt"), FString("Firebolt ability cooldown."));
+	GameplayTags.Cooldown_Fireblast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Fire.Fireblast"), FString("Fireblast ability cooldown."));
 	GameplayTags.Cooldown_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Lightning.Electrocute"), FString("Electrocute ability cooldown."));
 	GameplayTags.Cooldown_ArcaneShards = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Arcane.ArcaneShards"), FString("Arcane Shards ability cooldown."));
 	
@@ -109,6 +111,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 
 	// Gameplay Events
 	GameplayTags.Event_Montage_Firebolt = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Firebolt"), FString("Event fired during the Firebolt montage on the point to shoot the projectile."));
+	GameplayTags.Event_Montage_Fireblast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Fireblast"), FString("Event fired during the Fireblast montage on the point to shoot the projectile."));
 	GameplayTags.Event_Montage_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Electrocute"), FString("Event fired during the Electrocute montage on the point to shoot the projectile."));
 	GameplayTags.Event_Montage_ArcaneShards = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.ArcaneShards"), FString("Event fired during the Arcane Shards montage on the point to shoot the projectile."));
 	GameplayTags.Event_Montage_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.HitReact"), FString("Used to trigger hit react montage."));
@@ -135,4 +138,5 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.GameplayCue_ShockCast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Shock.Cast"), FString("Cue used to replicate shock casts."));
 	GameplayTags.GameplayCue_ShockLoop = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Shock.Loop"), FString("Cue used to replicate shock loops."));
 	GameplayTags.GameplayCue_ArcaneShards = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.ArcaneShards"), FString("Cue used to replicate arcane shards."));
+	GameplayTags.GameplayCue_Fireblast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Fireblast"), FString("Cue used for fire blast projectile hit."));
 }

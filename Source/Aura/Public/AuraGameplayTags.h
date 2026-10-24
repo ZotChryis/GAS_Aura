@@ -69,6 +69,7 @@ public:
 
 	// Abilities
 	FGameplayTag Ability_Firebolt;
+	FGameplayTag Ability_Fireblast;
 	FGameplayTag Ability_Electrocute;
 	FGameplayTag Ability_ArcaneShards;
 	
@@ -77,6 +78,7 @@ public:
 	FGameplayTag Ability_Passive_ManaSiphon;
 	
 	FGameplayTag Cooldown_Firebolt;
+	FGameplayTag Cooldown_Fireblast;
 	FGameplayTag Cooldown_Electrocute;
 	FGameplayTag Cooldown_ArcaneShards;
 	
@@ -108,6 +110,7 @@ public:
 
 	// Montage Events
 	FGameplayTag Event_Montage_Firebolt;
+	FGameplayTag Event_Montage_Fireblast;
 	FGameplayTag Event_Montage_Electrocute;
 	FGameplayTag Event_Montage_ArcaneShards;
 	FGameplayTag Event_Montage_HitReact;
@@ -134,6 +137,7 @@ public:
 	FGameplayTag GameplayCue_ShockCast;
 	FGameplayTag GameplayCue_ShockLoop;
 	FGameplayTag GameplayCue_ArcaneShards;
+	FGameplayTag GameplayCue_Fireblast;
 
 private:
 	static FAuraGameplayTags GameplayTags;
