@@ -6,6 +6,8 @@
 
 class UMVVM_LoadSlot;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSlotSelected);
+
 UCLASS()
 class AURA_API UMVVM_LoadScreen : public UMVVMViewModelBase
 {
@@ -14,14 +16,36 @@ class AURA_API UMVVM_LoadScreen : public UMVVMViewModelBase
 public:
 	
 	void InitializeLoadSlots();
+	void LoadData();
+	
+	UPROPERTY(BlueprintAssignable)
+	FSlotSelected SlotSelected;
+	
+	UFUNCTION(BlueprintCallable)
+	void NewGameButtonPressed(int32 SlotIndex);
+	
+	UFUNCTION(BlueprintCallable)
+	void NewSlotButtonPressed(int32 SlotIndex, const FString& Name);
+	
+	UFUNCTION(BlueprintCallable)
+	void SelectSlotButtonPressed(int32 SlotIndex);
+	
+	UFUNCTION(BlueprintCallable)
+	void PlayButtonPressed();
+	
+	UFUNCTION(BlueprintCallable)
+	void DeleteSelectedSlot();
+	
+	UFUNCTION(BlueprintPure)
+	UMVVM_LoadSlot* GetLoadSlotViewModel(int32 SlotIndex) const;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UMVVM_LoadSlot> LoadSlotViewModelClass;
-
-	UFUNCTION(BlueprintPure)
-	UMVVM_LoadSlot* GetLoadSlotViewModel(int32 Index) const;
 	
 private:
+	
+	UPROPERTY()
+	TObjectPtr<UMVVM_LoadSlot> SelectedSlot;
 	
 	UPROPERTY()
 	TMap<int32, UMVVM_LoadSlot*> LoadSlots;
