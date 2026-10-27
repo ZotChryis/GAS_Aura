@@ -5,6 +5,9 @@
 #include "NiagaraComponent.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
+#include "Game/AuraGameInstance.h"
+#include "Game/AuraGameModeBase.h"
+#include "Game/AuraLoadScreenSaveGame.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
@@ -162,6 +165,32 @@ void AAuraCharacter::SetMagicCircleMaterial_Implementation(UMaterialInterface* I
 	check(AuraPlayerController);
 	
 	AuraPlayerController->SetMagicCircleMaterial(InMaterial);
+}
+
+void AAuraCharacter::SaveProgress_Implementation(const FName CheckpointTag)
+{
+	if (AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	{
+		if (UAuraLoadScreenSaveGame* SaveData = AuraGameMode->RetrieveInGameSaveData())
+		{
+			SaveData->PlayerStartTag = CheckpointTag;
+			
+			if (AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>())
+			{
+				SaveData->PlayerLevel = AuraPlayerState->GetPlayerLevel();
+				SaveData->XP = AuraPlayerState->GetExperience();
+				SaveData->AttributePoints = AuraPlayerState->GetAttributePoints();
+				SaveData->SpellPoints = AuraPlayerState->GetSpellPoints();
+			}
+			
+			SaveData->Strength = UAuraAttributeSet::GetStrengthAttribute().GetNumericValue(GetAttributeSet());
+			SaveData->Intelligence = UAuraAttributeSet::GetIntelligenceAttribute().GetNumericValue(GetAttributeSet());
+			SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetNumericValue(GetAttributeSet());
+			SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetNumericValue(GetAttributeSet());
+			
+			AuraGameMode->SaveInGameProgress(SaveData);
+		}
+	}
 }
 
 void AAuraCharacter::OnRep_Burned()

@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "AuraAbilityTypes.h"
-#include "GameplayEffectTypes.h"
 #include "GameFramework/Actor.h"
 #include "NiagaraSystem.h"
 #include "AuraProjectile.generated.h"

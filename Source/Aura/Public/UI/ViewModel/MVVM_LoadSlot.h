@@ -24,6 +24,9 @@ public:
 	FEnableSelectSlotButton EnableSelectSlotButton;
 	
 	UPROPERTY()
+	FName PlayerStartTag;
+	
+	UPROPERTY()
 	FString LoadSlotName;
 	
 	UPROPERTY()

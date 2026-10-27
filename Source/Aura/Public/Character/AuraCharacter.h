@@ -40,6 +40,7 @@ public:
 	virtual void ShowMagicCircle_Implementation() override;
 	virtual void HideMagicCircle_Implementation() override;
 	virtual void SetMagicCircleMaterial_Implementation(UMaterialInterface* InMaterial) override;
+	virtual void SaveProgress_Implementation(const FName CheckpointTag) override;
 	/** End Player Interface **/
 
 	virtual void OnRep_Burned() override;

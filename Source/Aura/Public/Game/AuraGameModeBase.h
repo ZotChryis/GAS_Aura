@@ -19,7 +19,10 @@ public:
 	void SaveSlotData(const UMVVM_LoadSlot* LoadSlotViewModel, int32 SlotIndex) const;
 	void TravelToMap(const UMVVM_LoadSlot* LoadSlotViewModel);
 	static void DeleteSlotData(const UMVVM_LoadSlot* LoadSlotViewModel, int32 SlotIndex);
-	UAuraLoadScreenSaveGame* GetSaveSlotData(const FString& SlotName, int32 SlotIndex);
+	UAuraLoadScreenSaveGame* GetSaveSlotData(const FString& SlotName, int32 SlotIndex) const;
+	UAuraLoadScreenSaveGame* RetrieveInGameSaveData() const;
+	void SaveInGameProgress(UAuraLoadScreenSaveGame* SaveObject) const;
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<USaveGame> LoadScreenSaveGameClass;
@@ -38,6 +41,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Maps")
 	TMap<FString, TSoftObjectPtr<UWorld>> Maps;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Maps")
+	FName DefaultPlayerStartTag;
 	
 protected:
 	virtual void BeginPlay() override;

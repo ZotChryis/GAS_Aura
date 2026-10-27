@@ -1,5 +1,6 @@
 #include "UI/ViewModel/MVVM_LoadScreen.h"
 
+#include "Game/AuraGameInstance.h"
 #include "Game/AuraGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/ViewModel/MVVM_LoadSlot.h"
@@ -33,6 +34,7 @@ void UMVVM_LoadScreen::LoadData()
 		LoadSlot->SetPlayerName(SaveObject->PlayerName);
 		LoadSlot->SetMapName(SaveObject->MapName);
 		LoadSlot->Status = SaveObject->Status;
+		LoadSlot->PlayerStartTag = SaveObject->PlayerStartTag;
 		LoadSlot->InitializeSlot();
 	}
 }
@@ -49,15 +51,20 @@ void UMVVM_LoadScreen::NewSlotButtonPressed(int32 SlotIndex, const FString& Name
 {
 	if (UMVVM_LoadSlot* LoadSlot = LoadSlots.FindChecked(SlotIndex))
 	{
-		AAuraGameModeBase* AuraGameModeBase = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+		AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
 		
 		LoadSlot->SetPlayerName(Name);
-		LoadSlot->SetMapName(AuraGameModeBase->StartingMapName);
+		LoadSlot->SetMapName(AuraGameMode->StartingMapName);
 		LoadSlot->Status = Taken;
+		LoadSlot->PlayerStartTag = AuraGameMode->DefaultPlayerStartTag;
 		
-		AuraGameModeBase->SaveSlotData(LoadSlot, SlotIndex);
-		
+		AuraGameMode->SaveSlotData(LoadSlot, SlotIndex);
 		LoadSlot->SetWidgetSwitcherIndex.Broadcast(2);
+		
+		UAuraGameInstance* AuraGameInstance = Cast<UAuraGameInstance>(AuraGameMode->GetGameInstance());
+		AuraGameInstance->LoadSlotName = LoadSlot->LoadSlotName;
+		AuraGameInstance->LoadSlotIndex = LoadSlot->LoadSlotIndex;
+		AuraGameInstance->PlayerStartTag = AuraGameMode->DefaultPlayerStartTag;
 	}
 }
 
@@ -81,8 +88,12 @@ void UMVVM_LoadScreen::PlayButtonPressed()
 {
 	if (SelectedSlot)
 	{
-		AAuraGameModeBase* AuraGameModeBase = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
-		AuraGameModeBase->TravelToMap(SelectedSlot);
+		AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+		UAuraGameInstance* AuraGameInstance = Cast<UAuraGameInstance>(AuraGameMode->GetGameInstance());
+		AuraGameInstance->PlayerStartTag = SelectedSlot->PlayerStartTag;
+		AuraGameInstance->LoadSlotName = SelectedSlot->LoadSlotName;
+		AuraGameInstance->LoadSlotIndex = SelectedSlot->LoadSlotIndex;
+		AuraGameMode->TravelToMap(SelectedSlot);
 	}
 }
 
