@@ -13,7 +13,7 @@ void UOverlayWidgetController::BroadcastInitialValues()
 {
 	Super::BroadcastInitialValues();
 
-	OnPlayerLevelChangedDelegate.Broadcast(GetAuraPlayerState()->GetPlayerLevel());
+	OnPlayerLevelChangedDelegate.Broadcast(GetAuraPlayerState()->GetPlayerLevel(), false);
 	OnExperiencePercentChangedDelegate.Broadcast(GetAuraPlayerState()->GetExperience());
 	
 	OnHealthChanged.Broadcast(GetAuraAttributeSet()->GetHealth());
@@ -27,9 +27,9 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	Super::BindCallbacksToDependencies();
 
 	GetAuraPlayerState()->OnExperienceChanged.AddUObject(this, &UOverlayWidgetController::OnExperienceChanged);
-	GetAuraPlayerState()->OnLevelChanged.AddLambda([&](const int32 NewLevel)
+	GetAuraPlayerState()->OnLevelChanged.AddLambda([&](const int32 NewLevel, bool bIsLevelUp)
 	{
-		OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+		OnPlayerLevelChangedDelegate.Broadcast(NewLevel, bIsLevelUp);
 	});
 	
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAttributeSet()->GetHealthAttribute()).AddLambda(

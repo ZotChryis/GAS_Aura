@@ -11,6 +11,7 @@ class UAbilitySystemComponent;
 class UAttributeSet;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnLevelChanged, int32, bool);
 
 UCLASS()
 class AURA_API AAuraPlayerState : public APlayerState, public IAbilitySystemInterface
@@ -24,7 +25,7 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
 	
-	FOnPlayerStatChanged OnLevelChanged;
+	FOnLevelChanged OnLevelChanged;
 	FOnPlayerStatChanged OnExperienceChanged;
 	FOnPlayerStatChanged OnAttributePointsChanged;
 	FOnPlayerStatChanged OnSpellPointsChanged;

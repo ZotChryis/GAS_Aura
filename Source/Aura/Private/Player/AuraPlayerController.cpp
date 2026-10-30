@@ -2,7 +2,7 @@
 
 #include "AbilitySystemGlobals.h"
 #include "AuraGameplayTags.h"
-#include "Interaction/EnemyInterface.h"
+#include "Interaction/HighlightInterface.h"
 #include "Input/AuraEnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "NavigationPath.h"
@@ -14,6 +14,7 @@
 #include "Components/SplineComponent.h"
 #include "UI/Widget/DamageTextComponent.h"
 #include "GameFramework/Character.h"
+#include "Interaction/EnemyInterface.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -118,6 +119,22 @@ UAuraAbilitySystemComponent* AAuraPlayerController::GetAuraAbilitySystemComponen
 	return AuraASC;
 }
 
+void AAuraPlayerController::HighlightActor(AActor* InActor)
+{
+	if (IsValid(InActor) && InActor->Implements<UHighlightInterface>())
+	{
+		IHighlightInterface::Execute_HighlightActor(InActor);
+	}
+}
+
+void AAuraPlayerController::UnHighlightActor(AActor* InActor)
+{
+	if (IsValid(InActor) && InActor->Implements<UHighlightInterface>())
+	{
+		IHighlightInterface::Execute_UnHighlightActor(InActor);
+	}
+}
+
 void AAuraPlayerController::CursorTrace()
 {
 	if (const UAuraAbilitySystemComponent* ASC = GetAuraAbilitySystemComponent())
@@ -126,16 +143,16 @@ void AAuraPlayerController::CursorTrace()
 		{
 			if (LastActor)
 			{
-				LastActor->UnHighlightActor();
+				UnHighlightActor(LastActor);
 				LastActor = nullptr;
 			}
 			if (ThisActor)
 			{
-				ThisActor->UnHighlightActor();
+				UnHighlightActor(ThisActor);
 				ThisActor = nullptr;
 			}
 			
-			bTargeting = false;
+			TargetStatus = TargettingNone;
 			return;
 		}
 	}
@@ -157,18 +174,25 @@ void AAuraPlayerController::CursorTrace()
 
 	if (LastActor == nullptr && ThisActor != nullptr) 
 	{
-		ThisActor->HighlightActor();
+		HighlightActor(ThisActor);
 	}
 	else if (LastActor != nullptr && ThisActor == nullptr) {
-		LastActor->UnHighlightActor();
+		UnHighlightActor(LastActor);
 	}
 	else if (LastActor != ThisActor)
 	{
-		LastActor->UnHighlightActor();
-		ThisActor->HighlightActor();
+		HighlightActor(ThisActor);
+		UnHighlightActor(LastActor);
 	}
 
-	bTargeting = ThisActor != nullptr;
+	if (IsValid(ThisActor))
+	{
+		TargetStatus = ThisActor->Implements<UEnemyInterface>() ? TargettingEnemy : TargettingNonEnemy;
+	}
+	else
+	{
+		TargetStatus = TargettingNone;
+	}
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -249,21 +273,23 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	}
 	
 	// If we have no target and are using LMB, handle movement logic
-	if (!bTargeting && !bShiftKeyDown && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
+	if (TargetStatus != TargettingEnemy && !bShiftKeyDown && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
 	{
 		if (FollowTime <= ShortPressThreshold)
 		{
+			// Highlighted actors get to override where we're actually heading
+			if (IsValid(ThisActor) && ThisActor->Implements<UHighlightInterface>())
+			{
+				IHighlightInterface::Execute_SetMoveToLocation(ThisActor, CachedDestination);
+			}
+
 			if (APawn* ControlledPawn = GetPawn<APawn>())
 			{
-				if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination))
+				UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination);
+				if (NavPath && NavPath->PathPoints.Num() > 0)
 				{
-					if (NavPath->PathPoints.Num() == 0)
-					{
-						return;
-					}
-				
 					Spline->ClearSplinePoints();
-					for (FVector PathPoint : NavPath->PathPoints)
+					for (const FVector& PathPoint : NavPath->PathPoints)
 					{
 						Spline->AddSplinePoint(PathPoint, ESplineCoordinateSpace::World);
 					}
@@ -304,7 +330,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	}
 	
 	// If we have no target and are using LMB, handle movement logic
-	if (!bTargeting && !bShiftKeyDown && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
+	if (TargetStatus != TargettingEnemy && !bShiftKeyDown && InputTag.MatchesTagExact(FAuraGameplayTags::Get().Input_LMB))
 	{
 		FollowTime += GetWorld()->GetDeltaSeconds();
 
@@ -331,7 +357,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	GetAuraAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
 }
 
-void AAuraPlayerController::UpdateMagicCircle()
+void AAuraPlayerController::UpdateMagicCircle() const
 {
 	if (!IsValid(MagicCircleActor))
 	{

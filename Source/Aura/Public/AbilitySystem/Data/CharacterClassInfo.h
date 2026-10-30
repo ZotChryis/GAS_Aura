@@ -39,6 +39,9 @@ class AURA_API UCharacterClassInfo : public UDataAsset
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
+	TSubclassOf<UGameplayEffect> PrimaryAttributesSetByCaller;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
 	TSubclassOf<UGameplayEffect> SecondaryAttributesGameplayEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")

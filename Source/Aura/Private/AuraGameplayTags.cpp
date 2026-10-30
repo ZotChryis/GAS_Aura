@@ -77,6 +77,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Passive_HaloOfProtection = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Passive.HaloOfProtection"), FString("Passive Halo of Protection."));
 	GameplayTags.Ability_Passive_LifeSiphon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Passive.LifeSiphon"), FString("Passive Life Siphon."));
 	GameplayTags.Ability_Passive_ManaSiphon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Passive.ManaSiphon"), FString("Passive Mana Siphon."));
+	GameplayTags.Ability_Passive_ListenForEvent = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Passive.ListenForEvent"), FString("Passive to listen for events.."));
 	
 	GameplayTags.Ability_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Attack"), FString("Basic attack ability."));
 	GameplayTags.Ability_Summon = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Summon"), FString("Basic summon ability."));

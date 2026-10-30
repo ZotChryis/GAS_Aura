@@ -6,6 +6,7 @@
 #include "Interaction/PlayerInterface.h"
 #include "AuraCharacter.generated.h"
 
+class UAuraLoadScreenSaveGame;
 class UCameraComponent;
 class USpringArmComponent;
 class UNiagaraComponent;
@@ -51,6 +52,11 @@ public:
 
 protected:
 	virtual void InitAbilityActorInfo() override;
+	virtual void InitializeAttributesFromDisk(UAuraLoadScreenSaveGame* SaveData) const;
+	void LoadProgress() const;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> FromDiskPrimaryAttributes;
 
 private:
 

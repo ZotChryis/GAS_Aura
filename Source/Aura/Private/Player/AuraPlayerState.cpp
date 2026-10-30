@@ -38,13 +38,13 @@ UAttributeSet* AAuraPlayerState::GetAttributeSet() const
 void AAuraPlayerState::SetPlayerLevel(int32 InLevel)
 {
 	Level = InLevel;
-	OnLevelChanged.Broadcast(Level);
+	OnLevelChanged.Broadcast(Level, false);
 }
 
 void AAuraPlayerState::AddPlayerLevel(int32 Amount)
 {
 	Level += Amount;
-	OnLevelChanged.Broadcast(Level);
+	OnLevelChanged.Broadcast(Level, true);
 }
 
 void AAuraPlayerState::SetExperience(int32 InExperience)
@@ -85,7 +85,7 @@ void AAuraPlayerState::AddSpellPoints(int32 Amount)
 
 void AAuraPlayerState::OnRep_Level(int32 OldLevel)
 {
-	OnLevelChanged.Broadcast(Level);
+	OnLevelChanged.Broadcast(Level, true);
 }
 
 void AAuraPlayerState::OnRep_Experience(int32 OldExperience)

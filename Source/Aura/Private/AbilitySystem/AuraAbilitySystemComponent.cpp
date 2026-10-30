@@ -100,6 +100,9 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 				MulticastPassiveAbilityActivated(AbilityTag);
 				PassiveAbilityActivated.Broadcast(AbilityTag);
 			}
+			
+			Spec->GetDynamicSpecSourceTags().RemoveTag(GetAbilityStatusFromSpec(*Spec));
+			Spec->GetDynamicSpecSourceTags().AddTag(FAuraGameplayTags::Get().AbilityStatus_Equipped);
 		}
 		
 		AssignSlotToAbility(*Spec, InputTag);
@@ -133,11 +136,43 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 	AbilitiesGivenDelegate.Broadcast();
 }
 
+void UAuraAbilitySystemComponent::AddCharacterAbilitiesFromDisk(UAuraLoadScreenSaveGame* SaveData)
+{
+	for (const FSavedAbility& SavedAbility : SaveData->Abilities)
+	{
+		const TSubclassOf<UGameplayAbility> LoadedAbilityClass = SavedAbility.Ability;
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(LoadedAbilityClass, SavedAbility.AbilityLevel);
+		
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(SavedAbility.AbilityStatus);
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(SavedAbility.InputTag);
+		
+		if (SavedAbility.AbilityType == FAuraGameplayTags::Get().AbilityType_Offensive)
+		{
+			GiveAbility(AbilitySpec);
+		}
+		else if (SavedAbility.AbilityType == FAuraGameplayTags::Get().AbilityType_Passive)
+		{
+			if (SavedAbility.AbilityStatus.MatchesTagExact(FAuraGameplayTags::Get().AbilityStatus_Equipped))
+			{
+				GiveAbilityAndActivateOnce(AbilitySpec);
+			}
+			else
+			{
+				GiveAbility(AbilitySpec);
+			}
+		}
+	}
+	
+	bStartupAbilitiesGiven = true;
+	AbilitiesGivenDelegate.Broadcast();
+}
+
 void UAuraAbilitySystemComponent::AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities)
 {
 	for (const TSubclassOf<UGameplayAbility>& AbilityClass : StartupPassiveAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1.f);
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(FAuraGameplayTags::Get().AbilityStatus_Equipped);
 		GiveAbilityAndActivateOnce(AbilitySpec);
 	}
 }

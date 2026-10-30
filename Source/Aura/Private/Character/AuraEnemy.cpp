@@ -28,6 +28,12 @@ AAuraEnemy::AAuraEnemy()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	if (Weapon)
+	{
+		Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	}
+	
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	BaseWalkSpeed = 250.f;
 }
@@ -49,23 +55,25 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsRanged"), IsRanged());
 }
 
-/** Enemy Interface **/
-void AAuraEnemy::HighlightActor()
+/** Highlight Interface **/
+void AAuraEnemy::HighlightActor_Implementation()
 {
 	GetMesh()->SetRenderCustomDepth(true);
-	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
-
 	Weapon->SetRenderCustomDepth(true);
-	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 }
 
-void AAuraEnemy::UnHighlightActor()
+void AAuraEnemy::UnHighlightActor_Implementation()
 {
 	GetMesh()->SetRenderCustomDepth(false);
 	Weapon->SetRenderCustomDepth(false);
 }
 
-/** End Enemy Interface **/
+void AAuraEnemy::SetMoveToLocation_Implementation(FVector& OutDestination)
+{
+	// No-op
+}
+
+/** End Highlight Interface **/
 
 /** Combat Interface **/
 int32 AAuraEnemy::GetPlayerLevel_Implementation()
@@ -95,7 +103,7 @@ void AAuraEnemy::BeginPlay()
 	Super::BeginPlay();
 	InitAbilityActorInfo();
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
-
+	
 	if (HasAuthority())
 	{
 		UAuraAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent, CharacterClass);

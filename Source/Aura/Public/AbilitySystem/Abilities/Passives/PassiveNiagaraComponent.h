@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "NiagaraComponent.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "PassiveNiagaraComponent.generated.h"
 
 UCLASS()
@@ -12,7 +13,8 @@ class AURA_API UPassiveNiagaraComponent : public UNiagaraComponent
 public:
 	
 	UPassiveNiagaraComponent(const FObjectInitializer& Initializer);
-	
+	void ActivateIfEquipped(UAuraAbilitySystemComponent* AuraASC);
+
 	UPROPERTY(VisibleAnywhere)
 	FGameplayTag PassiveAbilityTag;
 	

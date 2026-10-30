@@ -23,6 +23,10 @@ public:
 	UAuraLoadScreenSaveGame* RetrieveInGameSaveData() const;
 	void SaveInGameProgress(UAuraLoadScreenSaveGame* SaveObject) const;
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+	FString GetMapNameFromAssetName(const FString& InMapAssetName) const;
+	
+	void SaveWorldState(UWorld* World, const FString& DestinationMapName = FString(), const FName& DestinationStartTag = FName()) const;
+	void LoadWorldState(UWorld* World) const;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<USaveGame> LoadScreenSaveGameClass;

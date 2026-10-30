@@ -76,6 +76,7 @@ public:
 	FGameplayTag Ability_Passive_HaloOfProtection;
 	FGameplayTag Ability_Passive_LifeSiphon;
 	FGameplayTag Ability_Passive_ManaSiphon;
+	FGameplayTag Ability_Passive_ListenForEvent;
 	
 	FGameplayTag Cooldown_Firebolt;
 	FGameplayTag Cooldown_Fireblast;

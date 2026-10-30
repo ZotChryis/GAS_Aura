@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/PlayerController.h"
 #include "AuraPlayerController.generated.h"
@@ -12,10 +11,17 @@ class UDamageTextComponent;
 class UAuraInputConfig;
 class UInputAction;
 class UInputMappingContext;
-class IEnemyInterface;
+class IHighlightInterface;
 class UAuraAbilitySystemComponent;
 class USplineComponent;
 struct FInputActionValue;
+
+enum ETargettingStatus
+{
+	TargettingNone,
+	TargettingEnemy,
+	TargettingNonEnemy
+};
 
 UCLASS()
 class AURA_API AAuraPlayerController : public APlayerController
@@ -82,6 +88,8 @@ private:
 	TObjectPtr<AMagicCircle> MagicCircleActor;
 	
 	UAuraAbilitySystemComponent* GetAuraAbilitySystemComponent();
+	void HighlightActor(AActor* InActor);
+	void UnHighlightActor(AActor* InActor);
 	void CursorTrace();
 	void Move(const FInputActionValue& InputActionValue);
 	void AutoRun();
@@ -92,14 +100,14 @@ private:
 	void ShiftPressed() { bShiftKeyDown = true;}
 	void ShiftReleased() { bShiftKeyDown = false;}
 	
-	void UpdateMagicCircle();
+	void UpdateMagicCircle() const;
 	
-	TScriptInterface<IEnemyInterface> LastActor;
-	TScriptInterface<IEnemyInterface> ThisActor;
+	TObjectPtr<AActor> LastActor;
+	TObjectPtr<AActor> ThisActor;
 	FHitResult CursorHit;
 	FVector CachedDestination = FVector::ZeroVector;
 	float FollowTime = 0.f;
 	bool bAutoRunning = false;
-	bool bTargeting = false;
+	ETargettingStatus TargetStatus = TargettingNone;
 	bool bShiftKeyDown = false;
 };
